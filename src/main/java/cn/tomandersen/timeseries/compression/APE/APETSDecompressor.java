@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.APE;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.TimeSeriesDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 
 import java.nio.ByteBuffer;
 
@@ -18,14 +18,14 @@ public class APETSDecompressor extends TimeSeriesDecompressor {
     /**
      * Only support decompression by {@link #nextPair}.
      */
-    public APETSDecompressor(BitInput compressedData) {
+    public APETSDecompressor(BitReader compressedData) {
         super(new APETimestampDecompressor(compressedData), new APEValueDecompressor(compressedData));
     }
 
     /**
      * Only support decompression by {@link #decompress()}.
      */
-    public APETSDecompressor(BitInput compressedData, ByteBuffer output) {
+    public APETSDecompressor(BitReader compressedData, ByteBuffer output) {
         super(
                 new APETimestampDecompressor(compressedData),
                 new APEValueDecompressor(compressedData),
@@ -37,7 +37,7 @@ public class APETSDecompressor extends TimeSeriesDecompressor {
      * Only support decompression by {@link #decompress()}.
      */
     public APETSDecompressor(
-            BitInput compressedData,
+            BitReader compressedData,
             ByteBuffer decompressedTimestampBuffer, ByteBuffer decompressedValueBuffer
     ) {
         super(
@@ -48,7 +48,7 @@ public class APETSDecompressor extends TimeSeriesDecompressor {
     }
 
     public APETSDecompressor(
-            BitInput compressedTimestamps, BitInput compressedValues,
+            BitReader compressedTimestamps, BitReader compressedValues,
             ByteBuffer decompressedTimestampBuffer, ByteBuffer decompressedValueBuffer
     ) {
         super(
@@ -59,7 +59,7 @@ public class APETSDecompressor extends TimeSeriesDecompressor {
     }
 
     public APETSDecompressor(
-            BitInput compressedTimestamp, BitInput compressedValue,
+            BitReader compressedTimestamp, BitReader compressedValue,
             ByteBuffer decompressedOutputBuffer
     ) {
         super(

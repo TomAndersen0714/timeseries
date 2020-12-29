@@ -1,9 +1,9 @@
 package cn.tomandersen.timeseries.compression.universal;
 
 import cn.tomandersen.timeseries.compression.APE.APETimestampCompressor1;
+import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.bitpack.BitPackValueCompressor;
 import cn.tomandersen.timeseries.compression.DatasetReader;
-import fi.iki.yak.ts.compression.gorilla.ByteBufferBitOutput;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -32,8 +32,8 @@ public class UniversalCompressionDemo {
 //        uncompressedValueBuffer.flip();
 
         // Compress
-        ByteBufferBitOutput compressedTimestamps = new ByteBufferBitOutput();
-        ByteBufferBitOutput compressedValues = new ByteBufferBitOutput();
+        BitBufferWriter compressedTimestamps = new BitBufferWriter();
+        BitBufferWriter compressedValues = new BitBufferWriter();
         UniversalTSCompressor tsCompressor = new UniversalTSCompressor(
                 new APETimestampCompressor1(compressedTimestamps),
                 new BitPackValueCompressor(compressedValues)
@@ -52,8 +52,8 @@ public class UniversalCompressionDemo {
         clock = Instant.now().toEpochMilli() - clock;
 
         // Print compressed data
-        ByteBuffer compressedTimestampByteBuffer = compressedTimestamps.getByteBuffer();
-        ByteBuffer compressedValueByteBuffer = compressedValues.getByteBuffer();
+        ByteBuffer compressedTimestampByteBuffer = compressedTimestamps.getBuffer();
+        ByteBuffer compressedValueByteBuffer = compressedValues.getBuffer();
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
@@ -63,8 +63,8 @@ public class UniversalCompressionDemo {
         compressedTimestampByteBuffer.rewind();
         compressedValueByteBuffer.rewind();
 
-        ByteBufferBitInput compressedTimestampsBitInput = new ByteBufferBitInput(compressedTimestampByteBuffer);
-        ByteBufferBitInput compressedValueBitInput = new ByteBufferBitInput(compressedValueByteBuffer);
+        BitBufferReader compressedTimestampsBitInput = new BitBufferReader(compressedTimestampByteBuffer);
+        BitBufferReader compressedValueBitInput = new BitBufferReader(compressedValueByteBuffer);
         ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         UniversalTSDecompressor tsDecompressor = new UniversalTSDecompressor(
@@ -93,7 +93,7 @@ public class UniversalCompressionDemo {
             System.out.print(decompressedTimestampsBuffer.getLong());
             System.out.print(" ");
             System.out.print(decompressedValuesBuffer.getDouble());
-//            System.out.print(decompressedValuesBuffer.getLong());
+//            System.out.print(decompressedValuesBuffer.nextLong());
             System.out.println();
         }
     }

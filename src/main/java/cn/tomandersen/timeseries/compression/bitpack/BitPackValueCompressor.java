@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.bitpack;
 
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 
 /**
  * <h3>BitPackValueCompressor</h3>
@@ -22,12 +22,12 @@ public class BitPackValueCompressor extends MetricValueCompressor {
     private int maxLeastSignificantBits = 0;
 
 
-    public BitPackValueCompressor(BitOutput output) {
+    public BitPackValueCompressor(BitWriter output) {
         super(output);
         frame = new long[DEFAULT_FRAME_SIZE];
     }
 
-    public BitPackValueCompressor(BitOutput output, int frameSize) {
+    public BitPackValueCompressor(BitWriter output, int frameSize) {
         super(output);
         frame = new long[frameSize];
     }

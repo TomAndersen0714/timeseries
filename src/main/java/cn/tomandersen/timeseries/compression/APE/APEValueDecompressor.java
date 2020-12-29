@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.APE;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.MetricValueDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 
 /**
@@ -18,11 +18,11 @@ public class APEValueDecompressor extends MetricValueDecompressor {
 
     private long l0 = 0, l1 = 0;
 
-    public APEValueDecompressor(BitInput input) {
+    public APEValueDecompressor(BitReader input) {
         super(input);
     }
 
-    public APEValueDecompressor(BitInput input, Predictor predictor) {
+    public APEValueDecompressor(BitReader input, Predictor predictor) {
         super(input, predictor);
     }
 
@@ -37,7 +37,7 @@ public class APEValueDecompressor extends MetricValueDecompressor {
         // Get prediction first.
         long prediction = predict();
         // Read next value's control bits.
-        int controlBits = input.nextClearBit(2), significantBitLength;
+        int controlBits = input.nextControlBits(2), significantBitLength;
         long currentValue = 0, xorValue;
 
 
@@ -55,7 +55,7 @@ public class APEValueDecompressor extends MetricValueDecompressor {
 
                 // Read the significant bits and restore the xor value.
                 significantBitLength = Long.SIZE - prevLeadingZeros - prevTrailingZeros;
-                xorValue = input.getLong(significantBitLength) << prevTrailingZeros;
+                xorValue = input.nextLong(significantBitLength) << prevTrailingZeros;
                 currentValue = prediction ^ xorValue;
 //                predictor.update(currentValue);
 
@@ -69,15 +69,15 @@ public class APEValueDecompressor extends MetricValueDecompressor {
                 // '11' bits (i.e. the block of current value meaningful bits doesn't falls within
                 // the scope of previous meaningful bits)
                 // Update the number of leading and trailing zeros.
-                prevLeadingZeros = (int) input.getLong(6);
-                significantBitLength = (int) input.getLong(6);
+                prevLeadingZeros = (int) input.nextLong(6);
+                significantBitLength = (int) input.nextLong(6);
                 // Since we have decreased the length of significant bits by 1 for larger compression range
                 // when we compress it, we restore it's value here.
                 significantBitLength++;
 
                 // Read the significant bits and restore the xor value.
                 prevTrailingZeros = Long.SIZE - prevLeadingZeros - significantBitLength;
-                xorValue = input.getLong(significantBitLength) << prevTrailingZeros;
+                xorValue = input.nextLong(significantBitLength) << prevTrailingZeros;
                 currentValue = prediction ^ xorValue;
 //                predictor.update(currentValue);
                 break;
@@ -99,7 +99,7 @@ public class APEValueDecompressor extends MetricValueDecompressor {
 //        l0 = l1;
 //        l1 = value;
         // Read next selection info about prediction model.
-        int controlBits = input.nextClearBit(2);
+        int controlBits = input.nextControlBits(2);
         switch (controlBits) {
             case 0b0:
                 return x1;

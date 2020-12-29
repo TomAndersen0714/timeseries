@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
 import cn.tomandersen.timeseries.compression.TimestampDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 
 /**
  * <h3>GorillaTimestampDecompressor</h3>
@@ -19,7 +19,7 @@ public class GorillaTimestampDecompressor extends TimestampDecompressor {
 
     private boolean isClosed = false;
 
-    public GorillaTimestampDecompressor(BitInput input) {
+    public GorillaTimestampDecompressor(BitReader input) {
         super(input);
     }
 
@@ -31,7 +31,7 @@ public class GorillaTimestampDecompressor extends TimestampDecompressor {
         // If reach the end of the buffer, return end sign.
         if (isClosed) return TimestampDecompressor.END_SIGN;
         // Read timestamp control bits.
-        int controlBits = input.nextClearBit(4);
+        int controlBits = input.nextControlBits(4);
         long deltaOfDelta;
 
         switch (controlBits) {
@@ -42,19 +42,19 @@ public class GorillaTimestampDecompressor extends TimestampDecompressor {
 
             case 0b10:
                 // '10' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 7 bits).
-                deltaOfDelta = input.getLong(7);
+                deltaOfDelta = input.nextLong(7);
                 break;
             case 0b110:
                 // '110' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 9 bits).
-                deltaOfDelta = input.getLong(9);
+                deltaOfDelta = input.nextLong(9);
                 break;
             case 0b1110:
                 // '1110' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 12 bits).
-                deltaOfDelta = input.getLong(12);
+                deltaOfDelta = input.nextLong(12);
                 break;
             case 0b1111:
                 // '1111' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 32 bits).
-                deltaOfDelta = input.getLong(32);
+                deltaOfDelta = input.nextLong(32);
                 // If current deltaOfDelta value is the special end sign, set the isClosed value to true
                 // (i.e. this buffer reach the end).
                 if ((int) deltaOfDelta == TimestampCompressor.END_SIGN) {

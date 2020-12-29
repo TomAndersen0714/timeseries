@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.APE;
 
 import cn.tomandersen.timeseries.compression.APE.demos.APECompressionDemo;
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 
 /**
@@ -21,11 +21,11 @@ public class APEValueCompressor extends MetricValueCompressor {
     private long l0 = 0, l1 = 0;
 
 
-    public APEValueCompressor(BitOutput out) {
+    public APEValueCompressor(BitWriter out) {
         super(out);
     }
 
-    public APEValueCompressor(BitOutput out, Predictor predictor) {
+    public APEValueCompressor(BitWriter out, Predictor predictor) {
         super(out, predictor);
     }
 
@@ -43,7 +43,7 @@ public class APEValueCompressor extends MetricValueCompressor {
 
         if (diff == 0) {
             // Write '0' bit as entire control bit(i.e. prediction and current value is same).
-            output.skipBit();
+            output.writeZeroBit();
 
             APECompressionDemo.b0++;
         }
@@ -52,7 +52,7 @@ public class APEValueCompressor extends MetricValueCompressor {
             int trailingZeros = Long.numberOfTrailingZeros(diff);
 
             // Write '1' bit as first control bit.
-            output.writeBit();
+            output.writeOneBit();
 
             // If the scope of meaningful bits falls within the scope of previous meaningful bits,
             // i.e. there are at least as many leading zeros and as many trailing zeros as with
@@ -84,7 +84,7 @@ public class APEValueCompressor extends MetricValueCompressor {
      */
     private void writeInPrevScope(long xor) {
         // Write '0' bit as second control bit.
-        output.skipBit();
+        output.writeZeroBit();
 
         // Write significant bits of difference value input the scope.
         int significantBits = 64 - prevLeadingZeros - prevTrailingZeros;
@@ -105,7 +105,7 @@ public class APEValueCompressor extends MetricValueCompressor {
      */
     private void writeInNewScope(long xor, int leadingZeros, int trailingZeros) {
         // Write '1' bit as second control bit.
-        output.writeBit();
+        output.writeOneBit();
 
         int significantBits = 64 - leadingZeros - trailingZeros;
 
@@ -140,7 +140,7 @@ public class APEValueCompressor extends MetricValueCompressor {
         if (e1 <= e0) {
             if (e1 <= e2) {
                 // e1: Write the '0' control bit.
-                output.skipBit();
+                output.writeZeroBit();
                 return x1;
             }
             else {

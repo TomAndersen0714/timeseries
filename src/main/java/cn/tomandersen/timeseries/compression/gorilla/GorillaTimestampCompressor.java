@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
 import cn.tomandersen.timeseries.compression.gorilla.demos.GorillaCompressionDemo;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 
 /**
  * <h3>GorillaTimestampCompressor</h3>
@@ -21,12 +21,12 @@ public class GorillaTimestampCompressor extends TimestampCompressor {
     private static final int DELTA_9_MASK = 0b110 << 9;
     private static final int DELTA_12_MASK = 0b1110 << 12;
 
-    public GorillaTimestampCompressor(BitOutput output) {
+    public GorillaTimestampCompressor(BitWriter output) {
         super(output);
     }
 
     /**
-     * Compress a timestamp into specific {@link BitOutput buffer stream}.
+     * Compress a timestamp into specific {@link BitWriter buffer stream}.
      *
      * @param timestamp Unix timestamp input second.
      */
@@ -39,7 +39,7 @@ public class GorillaTimestampCompressor extends TimestampCompressor {
         if (deltaOfDelta == 0) {
             // Write '0' bit as control bit(i.e. previous and current delta value is same).
             GorillaCompressionDemo.a0++;
-            output.skipBit();
+            output.writeZeroBit();
         }
         else {
             // Tips: since deltaOfDelta == 0 is unoccupied, we can utilize it to cover a larger range.

@@ -1,24 +1,23 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
 
 public abstract class MetricValueCompressor {
 
     // Output buffer for compressed metric value.
-    protected final BitOutput output;
+    protected final BitWriter output;
     protected boolean isClosed;
 
     // Predictor for metric value compression.
     protected Predictor predictor;
 
-    protected MetricValueCompressor(BitOutput output) {
+    protected MetricValueCompressor(BitWriter output) {
         // Default predictor is LastValuePredictor.
         this(output, new LastValuePredictor());
     }
 
-    protected MetricValueCompressor(BitOutput output, Predictor predictor) {
+    protected MetricValueCompressor(BitWriter output, Predictor predictor) {
         this.output = output;
         this.predictor = predictor; // Custom predictor.
     }
@@ -40,7 +39,7 @@ public abstract class MetricValueCompressor {
     public abstract void close();
 
 
-    public BitOutput getOutput() {
+    public BitWriter getOutput() {
         return output;
     }
 

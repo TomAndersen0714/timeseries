@@ -1,7 +1,5 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
-
 /**
  * @see TimestampDecompressor
  */
@@ -10,16 +8,16 @@ public abstract class TimestampCompressor {
     public static final int END_SIGN = -1;
 
     // Output buffer for compressed timestamp value.
-    protected final BitOutput output;
+    protected final BitWriter output;
     // Closing sign.
     protected boolean isClosed;
 
-    public TimestampCompressor(BitOutput output) {
+    public TimestampCompressor(BitWriter output) {
         this.output = output;
     }
 
     /**
-     * Compress a timestamp into specific {@link BitOutput buffer stream}.
+     * Compress a timestamp into specific {@link BitWriter buffer stream}.
      */
     public abstract void addTimestamp(long timestamp);
 
@@ -28,7 +26,7 @@ public abstract class TimestampCompressor {
      */
     public abstract void close();
 
-    public BitOutput getOutput() {
+    public BitWriter getOutput() {
         return output;
     }
 

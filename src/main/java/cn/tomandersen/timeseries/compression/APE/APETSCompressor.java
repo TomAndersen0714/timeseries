@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.APE;
 
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimeSeriesCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 
 /**
  * <h3>APE Time Series Compressor</h3>
@@ -14,7 +14,7 @@ import fi.iki.yak.ts.compression.gorilla.BitOutput;
  * @see APETSDecompressor
  */
 public class APETSCompressor extends TimeSeriesCompressor {
-    protected APETSCompressor(BitOutput output) {
+    protected APETSCompressor(BitWriter output) {
         super(
                 new APETimestampCompressor(output),
                 new APEValueCompressor(output),
@@ -22,7 +22,7 @@ public class APETSCompressor extends TimeSeriesCompressor {
         );
     }
 
-    public APETSCompressor(BitOutput timestampOutput, BitOutput valueOutput) {
+    public APETSCompressor(BitWriter timestampOutput, BitWriter valueOutput) {
         super(
                 new APETimestampCompressor1(timestampOutput),
                 new APEValueCompressor2(valueOutput)

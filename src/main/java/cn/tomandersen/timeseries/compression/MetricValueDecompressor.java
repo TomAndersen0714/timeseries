@@ -1,6 +1,5 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
 
@@ -11,16 +10,16 @@ import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
  */
 public abstract class MetricValueDecompressor {
 
-    protected final BitInput input;
+    protected final BitReader input;
     protected final Predictor predictor;
 
 
-    protected MetricValueDecompressor(BitInput input) {
+    protected MetricValueDecompressor(BitReader input) {
         // Default predictor is LastValuePredictor.
         this(input, new LastValuePredictor());
     }
 
-    protected MetricValueDecompressor(BitInput input, Predictor predictor) {
+    protected MetricValueDecompressor(BitReader input, Predictor predictor) {
         this.input = input;
         this.predictor = predictor;
     }

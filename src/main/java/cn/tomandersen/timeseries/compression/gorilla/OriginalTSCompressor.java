@@ -1,6 +1,6 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
+import cn.tomandersen.timeseries.compression.BitWriter;
 
 /**
  * <h3>OriginalTSCompressor</h3>
@@ -26,7 +26,7 @@ public class OriginalTSCompressor {
      * Compress the time-series into single stream.
      */
     public OriginalTSCompressor(
-            BitOutput output, long blockTimestamp
+            BitWriter output, long blockTimestamp
     ) {
         this.timestampCompressor = new OriginalTimestampCompressor(output);
         this.valueCompressor = new OriginalValueCompressor(output);
@@ -37,7 +37,7 @@ public class OriginalTSCompressor {
      * Compress the time-series into timestamp stream and value stream separately.
      */
     public OriginalTSCompressor(
-            BitOutput timestampOutput, BitOutput valueOutput,
+            BitWriter timestampOutput, BitWriter valueOutput,
             long blockTimestamp
     ) {
         this.timestampCompressor = new OriginalTimestampCompressor(timestampOutput);

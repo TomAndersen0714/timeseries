@@ -1,6 +1,6 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
+import cn.tomandersen.timeseries.compression.BitWriter;
 
 /**
  * <h3>OriginalTimestampCompressor</h3>
@@ -15,14 +15,14 @@ public class OriginalTimestampCompressor {
     private int storedDelta;
     private long storedTimestamp;
 
-    private BitOutput output;
+    private BitWriter output;
 
     private static final int OFFSET_7_MASK = 0b10 << 7;
     private static final int OFFSET_9_MASK = 0b110 << 9;
     private static final int OFFSET_12_MASK = 0b1110 << 12;
     private static final int FIRST_DELTA_BITS = 27;
 
-    public OriginalTimestampCompressor(BitOutput output) {
+    public OriginalTimestampCompressor(BitWriter output) {
         this.output = output;
 
     }
@@ -37,7 +37,7 @@ public class OriginalTimestampCompressor {
 
 
     /**
-     * Compress a timestamp into specific {@link BitOutput} buffer.
+     * Compress a timestamp into specific {@link BitWriter} buffer.
      */
     public void addTimestamp(long timestamp) {
 
@@ -46,7 +46,7 @@ public class OriginalTimestampCompressor {
         int deltaD = newDelta - storedDelta;
 
         if (deltaD == 0) {
-            output.skipBit();
+            output.writeZeroBit();
         }
         else {
             deltaD = encodeZigZag32(deltaD);
@@ -100,7 +100,7 @@ public class OriginalTimestampCompressor {
     public void close() {
         output.writeBits(0x0F, 4);
         output.writeBits(0xFFFFFFFF, 32);
-        output.skipBit();
+        output.writeZeroBit();
         output.flush();
     }
 

@@ -1,7 +1,5 @@
 package cn.tomandersen.timeseries.compression;
 
-import org.omg.PortableInterceptor.NON_EXISTENT;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -27,8 +25,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return true(i.e. ' 1 ' bit), false(i.e. '0' bit)
      */
     @Override
+    @WaitForTest
     public boolean nextBit() {
-        boolean bit = ((cacheByte >> (leftBits - 1)) & 0b1) == 1;
+        boolean bit = ((cacheByte >> (leftBits - 1)) & 1) == 1;
         leftBits--;
         flipByte();
         return bit;
@@ -42,6 +41,7 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return Integer value of the read bits
      */
     @Override
+    @WaitForTest
     public int nextControlBits(int maxBits) {
         int controlBits = 0x00;
 
@@ -50,9 +50,11 @@ public class BitBufferReader extends BitBuffer implements BitReader {
             boolean bit = nextBit();
 
             if (bit) {
+                // add a '1' bit to the end
                 controlBits |= 0x01;
             }
             else {
+                // add a '0' bit to the end
                 break;
             }
         }
@@ -65,8 +67,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return byte type value
      */
     @Override
+    @WaitForTest
     public byte nextByte() {
-        return 0;
+        return nextByte(Byte.SIZE);
     }
 
     /**
@@ -76,8 +79,28 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return byte type value
      */
     @Override
+    @WaitForTest
     public byte nextByte(int bits) {
-        return 0;
+        byte value = 0;
+        while (bits > 0 && bits <= Byte.SIZE) {
+            if (bits > leftBits) {
+                // Take only the leftBits "least significant" bits
+                byte leastSignificantBits = (byte) (cacheByte & ((1 << leftBits) - 1));
+                value = (byte) ((value << leftBits) + (leastSignificantBits & 0xFF));
+                bits -= leftBits;
+                leftBits = 0;
+            }
+            else {
+                // Shift to correct position and take only least significant bits
+                byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
+//                value = (byte) ((value << bits) + (leastSignificantBits & 0xFF));
+                value = (byte) ((value << bits) & leastSignificantBits);
+                leftBits -= bits;
+                bits = 0;
+            }
+            flipByte();
+        }
+        return value;
     }
 
     /**
@@ -86,8 +109,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return integer type value.
      */
     @Override
+    @WaitForTest
     public int nextInt() {
-        return 0;
+        return nextInt(Integer.SIZE);
     }
 
     /**
@@ -97,8 +121,27 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return integer type value.
      */
     @Override
+    @WaitForTest
     public int nextInt(int bits) {
-        return 0;
+        int value = 0;
+        while (bits > 0 && bits <= Integer.SIZE) {
+            if (bits > leftBits || bits == Byte.SIZE) {
+                // Take only the least `leftBits` significant bits
+                byte leastSignificantBits = (byte) (cacheByte & ((1 << leftBits) - 1));
+                value = (value << leftBits) + (leastSignificantBits & 0xFF);
+                bits -= leftBits;
+                leftBits = 0;
+            }
+            else {
+                // Shift to correct position and take only least significant bits
+                byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
+                value = (value << bits) & leastSignificantBits;
+                leftBits -= bits;
+                bits = 0;
+            }
+            flipByte();
+        }
+        return value;
     }
 
     /**
@@ -107,8 +150,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return long type value .
      */
     @Override
+    @WaitForTest
     public long nextLong() {
-        return 0;
+        return nextLong(Long.SIZE);
     }
 
     /**
@@ -118,20 +162,21 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return long type value.
      */
     @Override
+    @WaitForTest
     public long nextLong(int bits) {
         long value = 0;
-        while (bits > 0) {
+        while (bits > 0 && bits <= Long.SIZE) {
             if (bits > leftBits || bits == Byte.SIZE) {
                 // Take only the least `leftBits` significant bits
-                byte d = (byte) (cacheByte & ((1 << leftBits) - 1));
-                value = (value << leftBits) + (d & 0xFF);
+                byte leastSignificantBits = (byte) (cacheByte & ((1 << leftBits) - 1));
+                value = (value << leftBits) + (leastSignificantBits & 0xFF);
                 bits -= leftBits;
                 leftBits = 0;
             }
             else {
                 // Shift to correct position and take only least significant bits
-                byte d = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
-                value = (value << bits) + (d & 0xFF);
+                byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
+                value = (value << bits) & leastSignificantBits;
                 leftBits -= bits;
                 bits = 0;
             }
@@ -146,8 +191,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return float type value.
      */
     @Override
+    @WaitForTest
     public float nextFloat() {
-        return 0;
+        return nextFloat(Float.SIZE);
     }
 
     /**
@@ -157,8 +203,27 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return float type value.
      */
     @Override
+    @WaitForTest
     public float nextFloat(int bits) {
-        return 0;
+        int value = 0;
+        while (bits > 0 && bits <= Integer.SIZE) {
+            if (bits > leftBits || bits == Byte.SIZE) {
+                // Take only the least `leftBits` significant bits
+                byte leastSignificantBits = (byte) (cacheByte & ((1 << leftBits) - 1));
+                value = (value << leftBits) + (leastSignificantBits & 0xFF);
+                bits -= leftBits;
+                leftBits = 0;
+            }
+            else {
+                // Shift to correct position and take only least significant bits
+                byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
+                value = (value << bits) & leastSignificantBits;
+                leftBits -= bits;
+                bits = 0;
+            }
+            flipByte();
+        }
+        return Float.intBitsToFloat(value);
     }
 
     /**
@@ -167,8 +232,9 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return double type value.
      */
     @Override
+    @WaitForTest
     public double nextDouble() {
-        return 0;
+        return nextDouble(64);
     }
 
     /**
@@ -178,11 +244,33 @@ public class BitBufferReader extends BitBuffer implements BitReader {
      * @return double type value.
      */
     @Override
+    @WaitForTest
     public double nextDouble(int bits) {
-        return 0;
+        long value = 0;
+        while (bits > 0 && bits <= Long.SIZE) {
+            if (bits > leftBits || bits == Byte.SIZE) {
+                // Take only the least `leftBits` significant bits
+                byte leastSignificantBits = (byte) (cacheByte & ((1 << leftBits) - 1));
+                value = (value << leftBits) + (leastSignificantBits & 0xFF);
+                bits -= leftBits;
+                leftBits = 0;
+            }
+            else {
+                // Shift to correct position and take only least significant bits
+                byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
+                value = (value << bits) & leastSignificantBits;
+                leftBits -= bits;
+                bits = 0;
+            }
+            flipByte();
+        }
+        return Double.longBitsToDouble(value);
     }
 
-    // Get a new byte from buffer, if all bits in cached byte have been read.
+    /**
+     * Get a new byte from buffer, if all bits in cached byte have been read.
+     */
+    @WaitForTest
     private void flipByte() {
         if (leftBits == 0) {
             cacheByte = buffer.get();

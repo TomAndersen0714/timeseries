@@ -1,6 +1,6 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
+import cn.tomandersen.timeseries.compression.BitWriter;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
 
@@ -17,17 +17,17 @@ public class OriginalValueCompressor {
     private int storedTrailingZeros = 0;
 
     // Output buffer for compressed metric value.
-    protected final BitOutput output;
+    protected final BitWriter output;
 
     // Predictor for metric value compression.
     protected final Predictor predictor;
 
-    public OriginalValueCompressor(BitOutput output) {
+    public OriginalValueCompressor(BitWriter output) {
         this.output = output;
         this.predictor = new LastValuePredictor();
     }
 
-    public OriginalValueCompressor(BitOutput output, Predictor predictor) {
+    public OriginalValueCompressor(BitWriter output, Predictor predictor) {
         this.output = output;
         this.predictor = predictor;
     }
@@ -45,13 +45,13 @@ public class OriginalValueCompressor {
 
         if (diff == 0) {
             // Write '0' control bit.
-            output.skipBit();
+            output.writeZeroBit();
         }
         else {
             int leadingZeros = Long.numberOfLeadingZeros(diff);
             int trailingZeros = Long.numberOfTrailingZeros(diff);
 
-            output.writeBit(); // Optimize to writeNewLeading / writeExistingLeading?
+            output.writeOneBit(); // Optimize to writeNewLeading / writeExistingLeading?
 
             if (leadingZeros >= storedLeadingZeros && trailingZeros >= storedTrailingZeros) {
                 writeExistingLeading(diff);
@@ -89,7 +89,7 @@ public class OriginalValueCompressor {
      * @param xor XOR between previous value and current
      */
     private void writeExistingLeading(long xor) {
-        output.skipBit();
+        output.writeZeroBit();
 
         int significantBits = 64 - storedLeadingZeros - storedTrailingZeros;
         xor >>>= storedTrailingZeros;
@@ -107,7 +107,7 @@ public class OriginalValueCompressor {
      * @param trailingZeros New trailing zeros
      */
     private void writeNewLeading(long xor, int leadingZeros, int trailingZeros) {
-        output.writeBit();
+        output.writeOneBit();
 
         // Different from version 1.x, use (significantBits - 1) in storage - avoids a branch
         int significantBits = 64 - leadingZeros - trailingZeros;

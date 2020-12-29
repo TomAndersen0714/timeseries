@@ -24,6 +24,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * Write a '1' bit into the buffer.
      */
     @Override
+    @WaitForTest
     public void writeOneBit() {
         cacheByte |= (1 << (leftBits - 1));
         leftBits--;
@@ -34,6 +35,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * Write a '0' bit into the buffer.
      */
     @Override
+    @WaitForTest
     public void writeZeroBit() {
         leftBits--;
         flipByte();
@@ -46,6 +48,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param bits  the number of bits need to write
      */
     @Override
+    @WaitForTest
     public void writeBits(long value, int bits) {
         while (bits > 0) {
             int shift = bits - leftBits;
@@ -70,8 +73,9 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param b the byte value need to write.
      */
     @Override
+    @WaitForTest
     public void writeByte(byte b) {
-        writeBits(Byte.toUnsignedLong(b), 8);
+        writeBits(Byte.toUnsignedLong(b), Byte.SIZE);
     }
 
     /**
@@ -80,8 +84,9 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param value the int type value need to write.
      */
     @Override
+    @WaitForTest
     public void writeInt(int value) {
-        writeBits(value, 32);
+        writeBits(value, Integer.SIZE);
     }
 
     /**
@@ -90,8 +95,9 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param value the long type value need to write.
      */
     @Override
+    @WaitForTest
     public void writeLong(long value) {
-        writeBits(value, 64);
+        writeBits(value, Long.SIZE);
     }
 
     /**
@@ -100,8 +106,9 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param value the float type value need to write.
      */
     @Override
+    @WaitForTest
     public void writeFloat(float value) {
-        writeBits(Float.floatToRawIntBits(value), 32);
+        writeBits(Float.floatToRawIntBits(value), Float.SIZE);
     }
 
     /**
@@ -110,14 +117,16 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
      * @param value the double type value need to write.
      */
     @Override
+    @WaitForTest
     public void writeDouble(double value) {
-        writeBits(Double.doubleToRawLongBits(value), 64);
+        writeBits(Double.doubleToRawLongBits(value), Double.SIZE);
     }
 
     /**
      * Write the cached byte into the buffer.
      */
     @Override
+    @WaitForTest
     public void flush() {
         leftBits = 0;
         flipByte();
@@ -126,6 +135,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
     /**
      * Expand the capacity of buffer.
      */
+    @WaitForTest
     private void expand() {
         ByteBuffer largerBuffer = ByteBuffer.allocateDirect(buffer.capacity() * 2);
         buffer.flip();
@@ -140,6 +150,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
     /**
      * If cached byte is full, then write it into buffer and get next empty byte.
      */
+    @WaitForTest
     private void flipByte() {
         if (leftBits == 0) {
             if (!buffer.hasRemaining())

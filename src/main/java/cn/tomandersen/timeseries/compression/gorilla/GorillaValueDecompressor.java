@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.MetricValueDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 
 /**
@@ -18,19 +18,19 @@ public class GorillaValueDecompressor extends MetricValueDecompressor {
     private int prevLeadingZeros = 0;
     private int prevTrailingZeros = 0;
 
-    public GorillaValueDecompressor(BitInput input) {
+    public GorillaValueDecompressor(BitReader input) {
         // Default predictor is set LastValuePredictor(i.e. prediction and previous value is same).
         super(input);
     }
 
-    public GorillaValueDecompressor(BitInput input, Predictor predictor) {
+    public GorillaValueDecompressor(BitReader input, Predictor predictor) {
         super(input, predictor);
     }
 
     @Override
     public long nextValue() {
         // Read next value's control bits.
-        int controlBits = input.nextClearBit(2), significantBitLength;
+        int controlBits = input.nextControlBits(2), significantBitLength;
         long currentValue = 0, xorValue;
         long prediction = predictor.predict();
 
@@ -48,7 +48,7 @@ public class GorillaValueDecompressor extends MetricValueDecompressor {
 
                 // Read the significant bits and restore the xor value.
                 significantBitLength = Long.SIZE - prevLeadingZeros - prevTrailingZeros;
-                xorValue = input.getLong(significantBitLength) << prevTrailingZeros;
+                xorValue = input.nextLong(significantBitLength) << prevTrailingZeros;
                 currentValue = prediction ^ xorValue;
                 predictor.update(currentValue);
 
@@ -62,15 +62,15 @@ public class GorillaValueDecompressor extends MetricValueDecompressor {
                 // '11' bits (i.e. the block of current value meaningful bits doesn't falls within
                 // the scope of previous meaningful bits)
                 // Update the number of leading and trailing zeros.
-                prevLeadingZeros = (int) input.getLong(6);
-                significantBitLength = (int) input.getLong(6);
+                prevLeadingZeros = (int) input.nextLong(6);
+                significantBitLength = (int) input.nextLong(6);
                 // Since we have decreased the length of significant bits by 1 for larger compression range
                 // when we compress it, we restore it's value here.
                 significantBitLength++;
 
                 // Read the significant bits and restore the xor value.
                 prevTrailingZeros = Long.SIZE - prevLeadingZeros - significantBitLength;
-                xorValue = input.getLong(significantBitLength) << prevTrailingZeros;
+                xorValue = input.nextLong(significantBitLength) << prevTrailingZeros;
                 currentValue = prediction ^ xorValue;
                 predictor.update(currentValue);
                 break;

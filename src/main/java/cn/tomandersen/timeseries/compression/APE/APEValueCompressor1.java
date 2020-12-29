@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.APE;
 
 import cn.tomandersen.timeseries.compression.APE.demos.APECompressionDemo;
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 
 /**
@@ -20,11 +20,11 @@ public class APEValueCompressor1 extends MetricValueCompressor {
     private long l0 = 0, l1 = 0;
 
 
-    public APEValueCompressor1(BitOutput out) {
+    public APEValueCompressor1(BitWriter out) {
         super(out);
     }
 
-    public APEValueCompressor1(BitOutput out, Predictor predictor) {
+    public APEValueCompressor1(BitWriter out, Predictor predictor) {
         super(out, predictor);
     }
 
@@ -42,7 +42,7 @@ public class APEValueCompressor1 extends MetricValueCompressor {
 
         if (diff == 0) {
             // Write '0' bit as entire control bit(i.e. prediction and current value is same).
-//            output.skipBit();
+//            output.writeZeroBit();
             output.writeBits(0b11, 2);
 
             APECompressionDemo.b0++;
@@ -64,7 +64,7 @@ public class APEValueCompressor1 extends MetricValueCompressor {
 
             /////
 //            // Write '1' bit as first control bit.
-//            output.writeBit();
+//            output.writeOneBit();
 
             // If the scope of meaningful bits falls within the scope of previous meaningful bits,
             // i.e. there are at least as many leading zeros and as many trailing zeros as with
@@ -102,7 +102,7 @@ public class APEValueCompressor1 extends MetricValueCompressor {
         //******************
 
 //        // Write '0' bit as second control bit.
-//        output.skipBit();
+//        output.writeZeroBit();
 
         // Write significant bits of difference value input the scope.
         int significantBits = 64 - prevLeadingZeros - prevTrailingZeros;
@@ -126,9 +126,9 @@ public class APEValueCompressor1 extends MetricValueCompressor {
     private void writeInNewScope(long xor, int leadingZeros, int trailingZeros) {
         //******************
 //        // Write '1' bit as second control bit.
-//        output.writeBit();
+//        output.writeOneBit();
 //        // Write '0' bit as second control bit.
-//        output.skipBit();
+//        output.writeZeroBit();
         output.writeBits(0b1, 1);
         //******************
 

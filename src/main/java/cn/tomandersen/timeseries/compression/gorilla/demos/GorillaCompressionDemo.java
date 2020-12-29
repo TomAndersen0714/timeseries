@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.gorilla.demos;
 
+import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.DatasetReader;
 import cn.tomandersen.timeseries.compression.gorilla.GorillaTSCompressor;
-import fi.iki.yak.ts.compression.gorilla.*;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -34,8 +34,8 @@ public class GorillaCompressionDemo {
         ByteBuffer uncompressedValueBuffer = DatasetReader.getValueBuffer();
 
         // Compress
-        ByteBufferBitOutput compressedTimestampOutput = new ByteBufferBitOutput();
-        ByteBufferBitOutput compressedValueBitOutput = new ByteBufferBitOutput();
+        BitBufferWriter compressedTimestampOutput = new BitBufferWriter();
+        BitBufferWriter compressedValueBitOutput = new BitBufferWriter();
         GorillaTSCompressor tsCompressor =
                 new GorillaTSCompressor(compressedTimestampOutput, compressedValueBitOutput);
 
@@ -50,8 +50,8 @@ public class GorillaCompressionDemo {
 
         // Print compressed data
 
-        ByteBuffer compressedTimestampByteBuffer = compressedTimestampOutput.getByteBuffer();
-        ByteBuffer compressedValueByteBuffer = compressedValueBitOutput.getByteBuffer();
+        ByteBuffer compressedTimestampByteBuffer = compressedTimestampOutput.getBuffer();
+        ByteBuffer compressedValueByteBuffer = compressedValueBitOutput.getBuffer();
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
@@ -68,8 +68,8 @@ public class GorillaCompressionDemo {
         // Decompress
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
-        ByteBufferBitInput compressedTimestampsBitInput = new ByteBufferBitInput(compressedTimestampByteBuffer);
-        ByteBufferBitInput compressedValuesBitInput = new ByteBufferBitInput((compressedValueByteBuffer));
+        BitBufferReader compressedTimestampsBitInput = new BitBufferReader(compressedTimestampByteBuffer);
+        BitBufferReader compressedValuesBitInput = new BitBufferReader((compressedValueByteBuffer));
         ByteBuffer decompressedTimestampsByteBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesByteBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         GorillaTSDecompressor tsDecompressor = new GorillaTSDecompressor(

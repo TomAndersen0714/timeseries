@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.APE;
 
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
 
 /**
  * <h3>APETimestampCompressor</h3>
@@ -21,12 +21,12 @@ public class APETimestampCompressor extends TimestampCompressor {
     private static final int MASK_OFFSET_9 = 0b110 << 9;
     private static final int MASK_OFFSET_12 = 0b1110 << 12;
 
-    public APETimestampCompressor(BitOutput output) {
+    public APETimestampCompressor(BitWriter output) {
         super(output);
     }
 
     /**
-     * Compress a timestamp into specific {@link BitOutput buffer stream}.
+     * Compress a timestamp into specific {@link BitWriter buffer stream}.
      *
      * @param timestamp unix timestamp in second.
      */
@@ -39,7 +39,7 @@ public class APETimestampCompressor extends TimestampCompressor {
 
         if (deltaOfDelta == 0) {
             // Write '0' bit as control bit(i.e. previous and current delta value is same).
-//            output.skipBit();
+//            output.writeZeroBit();
             storedZeros++;
 
         }
@@ -113,27 +113,27 @@ public class APETimestampCompressor extends TimestampCompressor {
             storedZeros--;
 
             // Write '0' control bit
-            output.skipBit();
+            output.writeZeroBit();
             if (storedZeros < 8) {
                 // Tips: if there is too much case, you can use the number of leading zeros as
                 // the condition for using switch-case code block.
 
                 // Write '0' control bit
-                output.skipBit();
+                output.writeZeroBit();
                 // Write the number of cached zeros
                 output.writeBits(storedZeros, 3);
                 storedZeros = 0;
             }
             else if (storedZeros < 32) {
                 // Write '1' control bit
-                output.writeBit();
+                output.writeOneBit();
                 // Write the number of cached zeros
                 output.writeBits(storedZeros, 5);
                 storedZeros = 0;
             }
             else {
                 // Write '1' control bit
-                output.writeBit();
+                output.writeOneBit();
                 // Write 32 cached zeros
                 output.writeBits(0b11111, 5);
                 storedZeros -= 31;

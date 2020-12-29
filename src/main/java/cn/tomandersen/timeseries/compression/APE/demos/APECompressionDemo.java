@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.APE.demos;
 
 import cn.tomandersen.timeseries.compression.APE.APETSCompressor;
+import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.DatasetReader;
-import fi.iki.yak.ts.compression.gorilla.ByteBufferBitOutput;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -37,8 +37,8 @@ public class APECompressionDemo {
 //        uncompressedValueBuffer.flip();
 
         // Compress
-        ByteBufferBitOutput compressedTimestampOutput = new ByteBufferBitOutput();
-        ByteBufferBitOutput compressedValueOutput = new ByteBufferBitOutput();
+        BitBufferWriter compressedTimestampOutput = new BitBufferWriter();
+        BitBufferWriter compressedValueOutput = new BitBufferWriter();
         APETSCompressor tsCompressor =
                 new APETSCompressor(compressedTimestampOutput, compressedValueOutput);
 //        UniversalTSCompressor tsCompressor = new UniversalTSCompressor(
@@ -56,8 +56,8 @@ public class APECompressionDemo {
         clock = Instant.now().toEpochMilli() - clock;
 
         // Print compressed data
-        ByteBuffer compressedTimestampByteBuffer = compressedTimestampOutput.getByteBuffer();
-        ByteBuffer compressedValueByteBuffer = compressedValueOutput.getByteBuffer();
+        ByteBuffer compressedTimestampByteBuffer = compressedTimestampOutput.getBuffer();
+        ByteBuffer compressedValueByteBuffer = compressedValueOutput.getBuffer();
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
@@ -75,8 +75,8 @@ public class APECompressionDemo {
         compressedTimestampByteBuffer.rewind();
         compressedValueByteBuffer.rewind();
 
-        ByteBufferBitInput compressedTimestampsBitInput = new ByteBufferBitInput(compressedTimestampByteBuffer);
-        ByteBufferBitInput compressedValuesBitInput = new ByteBufferBitInput((compressedValueByteBuffer));
+        BitBufferReader compressedTimestampsBitInput = new BitBufferReader(compressedTimestampByteBuffer);
+        BitBufferReader compressedValuesBitInput = new BitBufferReader((compressedValueByteBuffer));
         ByteBuffer decompressedTimestampsByteBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesByteBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         APETSDecompressor tsDecompressor = new APETSDecompressor(

@@ -1,11 +1,6 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.BitInput;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
-import fi.iki.yak.ts.compression.gorilla.ByteBufferBitOutput;
-
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 
 /**
@@ -24,7 +19,7 @@ public abstract class TimeSeriesCompressor {
     private final MetricValueCompressor valueCompressor;
 
     private final boolean isSeparate;
-    private BitOutput out;
+    private BitWriter out;
 
     /**
      * Compress the time-series into single stream.
@@ -32,7 +27,7 @@ public abstract class TimeSeriesCompressor {
     public TimeSeriesCompressor(
             TimestampCompressor timestampCompressor,
             MetricValueCompressor valueCompressor,
-            BitOutput output
+            BitWriter output
     ) {
         this.timestampCompressor = timestampCompressor;
         this.valueCompressor = valueCompressor;
@@ -65,17 +60,17 @@ public abstract class TimeSeriesCompressor {
             boolean isSeparate
     ) throws Exception {
         Constructor<? extends TimestampCompressor>
-                timestampCompressorConstructor = timestampCompressorCls.getConstructor(BitOutput.class);
+                timestampCompressorConstructor = timestampCompressorCls.getConstructor(BitWriter.class);
         Constructor<? extends MetricValueCompressor>
-                valueCompressorConstructor = metricValueCompressorCls.getConstructor(BitOutput.class);
+                valueCompressorConstructor = metricValueCompressorCls.getConstructor(BitWriter.class);
         if (isSeparate) {
-            ByteBufferBitOutput output = new ByteBufferBitOutput();
+            BitBufferWriter output = new BitBufferWriter();
             this.timestampCompressor = timestampCompressorConstructor.newInstance(output);
             this.valueCompressor = valueCompressorConstructor.newInstance(output);
         }
         else {
-            ByteBufferBitOutput timestampOutput = new ByteBufferBitOutput();
-            ByteBufferBitOutput valueOutput = new ByteBufferBitOutput();
+            BitBufferWriter timestampOutput = new BitBufferWriter();
+            BitBufferWriter valueOutput = new BitBufferWriter();
             this.timestampCompressor = timestampCompressorConstructor.newInstance(timestampOutput);
             this.valueCompressor = valueCompressorConstructor.newInstance(valueOutput);
         }
@@ -196,11 +191,11 @@ public abstract class TimeSeriesCompressor {
         }
     }
 
-    public BitOutput getTimestampOutput() {
+    public BitWriter getTimestampOutput() {
         return timestampCompressor.getOutput();
     }
 
-    public BitOutput getValueOutput() {
+    public BitWriter getValueOutput() {
         return valueCompressor.getOutput();
     }
 
@@ -208,7 +203,7 @@ public abstract class TimeSeriesCompressor {
         return isSeparate;
     }
 
-    public BitOutput getOutput() {
+    public BitWriter getOutput() {
         return out;
     }
 }

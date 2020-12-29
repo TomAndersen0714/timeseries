@@ -1,9 +1,7 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
+import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimeSeriesCompressor;
-import fi.iki.yak.ts.compression.gorilla.BitOutput;
-
-import java.nio.ByteBuffer;
 
 /**
  * <h3>GorillaTSCompressor</h3>
@@ -17,7 +15,7 @@ import java.nio.ByteBuffer;
  */
 public class GorillaTSCompressor extends TimeSeriesCompressor {
 
-    public GorillaTSCompressor(BitOutput output) {
+    public GorillaTSCompressor(BitWriter output) {
         super(
                 new GorillaTimestampCompressor(output),
                 new GorillaValueCompressor(output),
@@ -25,7 +23,7 @@ public class GorillaTSCompressor extends TimeSeriesCompressor {
         );
     }
 
-    public GorillaTSCompressor(BitOutput timestampOutput, BitOutput valueOutput
+    public GorillaTSCompressor(BitWriter timestampOutput, BitWriter valueOutput
     ) {
         super(
                 new GorillaTimestampCompressor(timestampOutput),

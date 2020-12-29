@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.APE;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
 import cn.tomandersen.timeseries.compression.TimestampDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 
 /**
  * <h3>APETimestampDecompressor1</h3>
@@ -20,7 +20,7 @@ public class APETimestampDecompressor1 extends TimestampDecompressor {
     private boolean isClosed = false;
 
 
-    public APETimestampDecompressor1(BitInput input) {
+    public APETimestampDecompressor1(BitReader input) {
         super(input);
     }
 
@@ -42,7 +42,7 @@ public class APETimestampDecompressor1 extends TimestampDecompressor {
         }
 
         // Read timestamp control bits.
-        int controlBits = input.nextClearBit(4);
+        int controlBits = input.nextControlBits(4);
         long deltaOfDelta;
 
         switch (controlBits) {
@@ -58,19 +58,19 @@ public class APETimestampDecompressor1 extends TimestampDecompressor {
 
             case 0b10:
                 // '10' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 7 bits).
-                deltaOfDelta = input.getLong(3);
+                deltaOfDelta = input.nextLong(3);
                 break;
             case 0b110:
                 // '110' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 9 bits).
-                deltaOfDelta = input.getLong(5);
+                deltaOfDelta = input.nextLong(5);
                 break;
             case 0b1110:
                 // '1110' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 12 bits).
-                deltaOfDelta = input.getLong(9);
+                deltaOfDelta = input.nextLong(9);
                 break;
             case 0b1111:
                 // '1111' bits (i.e. deltaOfDelta value encoded by zigzag32 is stored input next 32 bits).
-                deltaOfDelta = input.getLong(32);
+                deltaOfDelta = input.nextLong(32);
                 // If current deltaOfDelta value is the special end sign, set the isClosed value to true
                 // (i.e. this buffer reach the end).
                 if ((int) deltaOfDelta == TimestampCompressor.END_SIGN) {
@@ -102,14 +102,14 @@ public class APETimestampDecompressor1 extends TimestampDecompressor {
      */
     private void getConsecutiveZeros() {
         // Read consecutive zeros control bits.
-        int controlBits = input.nextClearBit(1);
+        int controlBits = input.nextControlBits(1);
 
         switch (controlBits) {
             case 0:
-                storedZeros = input.getLong(3);
+                storedZeros = input.nextLong(3);
                 break;
             case 1:
-                storedZeros = input.getLong(5);
+                storedZeros = input.nextLong(5);
                 break;
         }
         // Since we have decreased the 'storedZeros' by 1 when we

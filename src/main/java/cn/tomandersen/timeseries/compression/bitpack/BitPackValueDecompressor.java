@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression.bitpack;
 
+import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.MetricValueDecompressor;
-import fi.iki.yak.ts.compression.gorilla.BitInput;
 import fi.iki.yak.ts.compression.gorilla.Predictor;
 
 /**
@@ -19,25 +19,25 @@ public class BitPackValueDecompressor extends MetricValueDecompressor {
     private int maxLeastSignificantBits = 0;
 
 
-    public BitPackValueDecompressor(BitInput input) {
+    public BitPackValueDecompressor(BitReader input) {
         super(input);
         this.capacity = BitPackValueCompressor.DEFAULT_FRAME_SIZE;
         this.pos = this.capacity;
     }
 
-    public BitPackValueDecompressor(BitInput input, int capacity) {
+    public BitPackValueDecompressor(BitReader input, int capacity) {
         super(input);
         this.capacity = capacity;
         this.pos = this.capacity;
     }
 
-    public BitPackValueDecompressor(BitInput input, Predictor predictor) {
+    public BitPackValueDecompressor(BitReader input, Predictor predictor) {
         super(input, predictor);
         this.capacity = BitPackValueCompressor.DEFAULT_FRAME_SIZE;
         this.pos = this.capacity;
     }
 
-    public BitPackValueDecompressor(BitInput input, Predictor predictor, int capacity) {
+    public BitPackValueDecompressor(BitReader input, Predictor predictor, int capacity) {
         super(input, predictor);
         this.capacity = capacity;
         this.pos = this.capacity;
@@ -53,11 +53,11 @@ public class BitPackValueDecompressor extends MetricValueDecompressor {
         // If current compressed frame reach the end, read next maximum number of least
         // significant bit.
         if (pos == capacity) {
-            maxLeastSignificantBits = (int) input.getLong(6);
+            maxLeastSignificantBits = (int) input.nextLong(6);
             pos = 0;
         }
         // Decompress the difference in current frame according to the value of maxLeastSignificantBits
-        long diff = decodeZigZag64(input.getLong(maxLeastSignificantBits));
+        long diff = decodeZigZag64(input.nextLong(maxLeastSignificantBits));
         // Restore the value.
         long value = diff + predictor.predict();
         // update predictor and position.

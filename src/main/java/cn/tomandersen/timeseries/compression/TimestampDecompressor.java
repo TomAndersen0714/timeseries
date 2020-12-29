@@ -1,7 +1,5 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.BitInput;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -12,11 +10,11 @@ public abstract class TimestampDecompressor {
     protected static final long END_SIGN = Long.MIN_VALUE;
 
     // Input buffer for compressed timestamp value.
-    protected final BitInput input;
+    protected final BitReader input;
     // Output buffer for decompressed timestamp value.
     protected ByteBuffer output;
 
-    protected TimestampDecompressor(BitInput input) {
+    protected TimestampDecompressor(BitReader input) {
         this.input = input;
     }
 

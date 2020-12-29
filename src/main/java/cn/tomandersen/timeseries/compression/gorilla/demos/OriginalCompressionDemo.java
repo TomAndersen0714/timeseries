@@ -1,14 +1,11 @@
 package cn.tomandersen.timeseries.compression.gorilla.demos;
 
+import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.DatasetReader;
-import cn.tomandersen.timeseries.compression.TimeSeriesCompressor;
-import cn.tomandersen.timeseries.compression.gorilla.GorillaTSCompressor;
 import cn.tomandersen.timeseries.compression.gorilla.OriginalTSCompressor;
-import fi.iki.yak.ts.compression.gorilla.*;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 /**
  * <h3>用于测试Gorilla Compressor</h3>
@@ -32,23 +29,23 @@ public class OriginalCompressionDemo {
 //        uncompressedValueBuffer.flip();
 
         long now = 1523075453;
-        ByteBufferBitOutput timestampOutput = new ByteBufferBitOutput();
-        ByteBufferBitOutput valueOutput = new ByteBufferBitOutput();
+        BitBufferWriter timestampOutput = new BitBufferWriter();
+        BitBufferWriter valueOutput = new BitBufferWriter();
 
 //        // New version compression method
-//        ByteBufferBitOutput output = new ByteBufferBitOutput();
+//        BitBufferWriter output = new BitBufferWriter();
 //        GorillaCompressor compressor = new GorillaCompressor(now, output);
 //        while (uncompressedTimestampBuffer.remaining() >= Long.BYTES) {
-//            compressor.addValue(uncompressedTimestampBuffer.getLong(), uncompressedValueBuffer.getLong());
+//            compressor.addValue(uncompressedTimestampBuffer.nextLong(), uncompressedValueBuffer.nextLong());
 //        }
 //        compressor.close();
 //        System.out.println("New version");
 
 //        // Old version compression method
-//        BitOutput output = new ByteBufferBitOutput();
+//        BitOutput output = new BitBufferWriter();
 //        Compressor tsCompressor = new Compressor(now, output);
 //        while (uncompressedTimestamps.remaining() >= Long.BYTES) {
-//            tsCompressor.addValue(uncompressedTimestamps.getLong(), uncompressedValues.getLong());
+//            tsCompressor.addValue(uncompressedTimestamps.nextLong(), uncompressedValues.nextLong());
 //        }
 //        tsCompressor.close();
 //        System.out.println("Old version");
@@ -56,7 +53,7 @@ public class OriginalCompressionDemo {
 //        // Print result
 //        System.out.println(dataset);
 //        int uncompressedDataSize = uncompressedTimestampBuffer.capacity() + uncompressedValueBuffer.capacity();
-//        int compressedDataSize = output.getByteBuffer().position();
+//        int compressedDataSize = output.getBuffer().position();
 //        System.out.println(uncompressedDataSize + "B" + " -> " + compressedDataSize + "B");
 //        System.out.println("Compression ratio: " + (float) uncompressedDataSize / compressedDataSize);
 
@@ -74,8 +71,8 @@ public class OriginalCompressionDemo {
 
         // Print result
         System.out.println(dataset);
-        ByteBuffer compressedTimestampBuffer = timestampOutput.getByteBuffer();
-        ByteBuffer compressedValueBuffer = valueOutput.getByteBuffer();
+        ByteBuffer compressedTimestampBuffer = timestampOutput.getBuffer();
+        ByteBuffer compressedValueBuffer = valueOutput.getBuffer();
         compressedTimestampBuffer.flip();
         compressedValueBuffer.flip();
         printResult(

@@ -28,11 +28,12 @@ public class DatasetReader {
     }
 
     /**
-     * Read specific dataset file and return the buffer.
+     * Read specific dataset file into a entire buffer, and return the buffer.
      *
      * @return byte buffer of the dataset.
      */
-    public ByteBuffer read() {
+    @Deprecated
+    public static ByteBuffer read(String filename) {
         // Do nothing
         return null;
     }
@@ -108,4 +109,5 @@ public class DatasetReader {
         valueBuffer.flip();
         return valueBuffer;
     }
+
 }

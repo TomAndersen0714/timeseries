@@ -1,7 +1,7 @@
 package cn.tomandersen.timeseries.compression;
 
-import fi.iki.yak.ts.compression.gorilla.Predictor;
-import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
+import cn.tomandersen.timeseries.compression.predictor.LastValuePredictor;
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 public abstract class MetricValueCompressor {
 

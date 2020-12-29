@@ -3,7 +3,7 @@ package cn.tomandersen.timeseries.compression.gorilla;
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
 import cn.tomandersen.timeseries.compression.gorilla.demos.GorillaCompressionDemo;
-import fi.iki.yak.ts.compression.gorilla.Predictor;
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
  * <h3>GorillaValueCompressor</h3>

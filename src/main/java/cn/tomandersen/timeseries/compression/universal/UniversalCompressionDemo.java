@@ -161,12 +161,12 @@ public class UniversalCompressionDemo {
 //        String dataset = "tmp\\testDataset";
 //        String dataset = "UCR\\CinC_ECG_torso";
 //        String dataset = "UCR\\UWaveGestureLibraryAll";
-        String[] datasets = new String[]{
+        String[] integerValueDatasets = new String[]{
                 "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
                 "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
                 "tmp\\Server106", "tmp\\Server115"
         };
-        for (String dataset : datasets) {
+        for (String dataset : integerValueDatasets) {
             System.out.println("----------");
             System.out.println(dataset);
             compressionDemo(path + dataset);

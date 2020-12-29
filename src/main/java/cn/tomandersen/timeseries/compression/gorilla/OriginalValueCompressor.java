@@ -1,8 +1,8 @@
 package cn.tomandersen.timeseries.compression.gorilla;
 
 import cn.tomandersen.timeseries.compression.BitWriter;
-import fi.iki.yak.ts.compression.gorilla.Predictor;
-import fi.iki.yak.ts.compression.gorilla.predictors.LastValuePredictor;
+import cn.tomandersen.timeseries.compression.predictor.LastValuePredictor;
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
  * <h3>OriginalValueCompressor</h3>

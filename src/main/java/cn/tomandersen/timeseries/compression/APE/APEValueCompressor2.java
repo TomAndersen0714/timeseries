@@ -3,7 +3,7 @@ package cn.tomandersen.timeseries.compression.APE;
 import cn.tomandersen.timeseries.compression.APE.demos.APECompressionDemo;
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
-import fi.iki.yak.ts.compression.gorilla.Predictor;
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
  * Difference with APEValueCompressor is about control bits between case A and case B.

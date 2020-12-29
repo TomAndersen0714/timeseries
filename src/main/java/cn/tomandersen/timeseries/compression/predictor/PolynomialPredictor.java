@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression;
+package cn.tomandersen.timeseries.compression.predictor;
 
 /**
  * <h3>PolynomialPredictor</h3>

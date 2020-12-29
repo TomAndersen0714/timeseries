@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression;
+package cn.tomandersen.timeseries.compression.predictor;
 
 public interface Predictor {
 

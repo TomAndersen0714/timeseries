@@ -1,6 +1,6 @@
 package cn.tomandersen.timeseries.compression.gorilla.demos;
 
-import fi.iki.yak.ts.compression.gorilla.benchmark.EncodingBenchmark;
+//import fi.iki.yak.ts.compression.gorilla.benchmark.EncodingBenchmark;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -16,8 +16,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
  */
 public class BenchmarkDemo {
     public static void main(String[] args) throws RunnerException {
-        Options opts = new OptionsBuilder().include(EncodingBenchmark.class.getSimpleName())
-                .output("C:\\Users\\DELL\\Desktop\\benchmark.log").build();
-        new Runner(opts).run();
+//        Options opts = new OptionsBuilder().include(EncodingBenchmark.class.getSimpleName())
+//                .output("C:\\Users\\DELL\\Desktop\\benchmark.log").build();
+//        new Runner(opts).run();
     }
 }

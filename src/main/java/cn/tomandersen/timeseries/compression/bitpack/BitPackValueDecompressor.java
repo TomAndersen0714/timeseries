@@ -2,7 +2,7 @@ package cn.tomandersen.timeseries.compression.bitpack;
 
 import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.MetricValueDecompressor;
-import fi.iki.yak.ts.compression.gorilla.Predictor;
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
  * <h3>BitPackValueDecompressor</h3>

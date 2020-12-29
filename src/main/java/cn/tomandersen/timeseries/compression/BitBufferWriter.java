@@ -153,9 +153,9 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
     @WaitForTest
     private void flipByte() {
         if (leftBits == 0) {
+            buffer.put(cacheByte);
             if (!buffer.hasRemaining())
                 expand();
-            buffer.put(cacheByte);
 
             cacheByte = buffer.get(buffer.position());
             leftBits = Byte.SIZE;

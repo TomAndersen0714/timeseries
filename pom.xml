@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cn.tomandersen</groupId>
+    <artifactId>timeseries</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+
+    <!-- https://github.com/burmanm/gorilla-tsc -->
+    <dependencies>
+        <dependency>
+            <groupId>fi.iki.yak</groupId>
+            <artifactId>compression-gorilla</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!--配置Maven项目compiler插件-->
+            <!--此工具只会打包原码编译后class文件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!--配置Maven项目assembly插件-->
+            <!--此工具会将全部依赖打包-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2.2</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <!--子类Maven通过mainClass标签设置成主类的全类名FQCN(Fully Qualified Class Name)-->
+                            <!--<mainClass></mainClass>-->
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,6 +1,6 @@
 package cn.tomandersen.timeseries.compression.APE;
 
-import cn.tomandersen.timeseries.compression.APE.demos.APECompressionDemo;
+import cn.tomandersen.timeseries.compression.benchmark.APECompressionDemo;
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
 import cn.tomandersen.timeseries.compression.predictor.Predictor;
@@ -172,5 +172,6 @@ public class APEValueCompressor1 extends MetricValueCompressor {
     public void close() {
         isClosed = true;
         // Do nothing.
+        output.flush();
     }
 }

@@ -10,6 +10,7 @@ import cn.tomandersen.timeseries.compression.predictor.Predictor;
  */
 public abstract class MetricValueDecompressor {
 
+    // Input buffer for compressed timestamp value.
     protected final BitReader input;
     protected final Predictor predictor;
 

@@ -35,6 +35,13 @@ public class UniversalTSCompressor extends TimeSeriesCompressor {
 
     public UniversalTSCompressor(
             Class<? extends TimestampCompressor> timestampCompressorCls,
+            Class<? extends MetricValueCompressor> metricValueCompressorCls
+    ) throws Exception {
+        super(timestampCompressorCls, metricValueCompressorCls);
+    }
+
+    public UniversalTSCompressor(
+            Class<? extends TimestampCompressor> timestampCompressorCls,
             Class<? extends MetricValueCompressor> metricValueCompressorCls,
             boolean isSeparate
     ) throws Exception {

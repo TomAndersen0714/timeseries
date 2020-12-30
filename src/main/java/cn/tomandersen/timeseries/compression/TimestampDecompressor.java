@@ -6,13 +6,14 @@ import java.nio.ByteBuffer;
  * @see TimestampCompressor
  */
 public abstract class TimestampDecompressor {
+
     // End sign for timestamp decompression.
     protected static final long END_SIGN = Long.MIN_VALUE;
 
     // Input buffer for compressed timestamp value.
     protected final BitReader input;
-    // Output buffer for decompressed timestamp value.
-    protected ByteBuffer output;
+//    // Output buffer for decompressed timestamp value.
+//    protected ByteBuffer output;
 
     protected TimestampDecompressor(BitReader input) {
         this.input = input;

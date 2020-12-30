@@ -11,12 +11,8 @@ import java.nio.ByteBuffer;
  */
 public class BitBufferReader extends BitBuffer implements BitReader {
 
-    public BitBufferReader() {
-        super();
-    }
-
-    public BitBufferReader(ByteBuffer byteBuffer) {
-        super(byteBuffer);
+    public BitBufferReader(ByteBuffer inputByteBuffer) {
+        super(inputByteBuffer);
     }
 
     /**

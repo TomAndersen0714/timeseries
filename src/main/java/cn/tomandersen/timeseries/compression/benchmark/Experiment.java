@@ -1,8 +1,5 @@
 package cn.tomandersen.timeseries.compression.benchmark;
 
-import cn.tomandersen.timeseries.compression.APE.demos.APECompressionDemo;
-import cn.tomandersen.timeseries.compression.gorilla.demos.GorillaCompressionDemo;
-
 /**
  * @author TomAndersen
  * @version 1.0

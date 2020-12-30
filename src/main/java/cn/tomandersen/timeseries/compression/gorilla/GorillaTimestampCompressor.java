@@ -2,7 +2,7 @@ package cn.tomandersen.timeseries.compression.gorilla;
 
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
-import cn.tomandersen.timeseries.compression.gorilla.demos.GorillaCompressionDemo;
+import cn.tomandersen.timeseries.compression.benchmark.GorillaCompressionDemo;
 
 /**
  * <h3>GorillaTimestampCompressor</h3>

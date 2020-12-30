@@ -1,5 +1,7 @@
 package cn.tomandersen.timeseries.compression;
 
+import cn.tomandersen.timeseries.compression.predictor.Predictor;
+
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 
@@ -18,7 +20,7 @@ public abstract class TimeSeriesCompressor {
     private final TimestampCompressor timestampCompressor;
     private final MetricValueCompressor valueCompressor;
 
-    private final boolean isSeparate;
+    private boolean isSeparate;
     private BitWriter out;
 
     /**
@@ -48,7 +50,20 @@ public abstract class TimeSeriesCompressor {
     }
 
     /**
-     * Construct time-series compressor by specific compressor.
+     * Construct time-series compressor by specific compressor using default value predictor.
+     *
+     * @param timestampCompressorCls   the Class object of timestamp compressor.
+     * @param metricValueCompressorCls the Class object of value compressor.
+     */
+    public TimeSeriesCompressor(
+            Class<? extends TimestampCompressor> timestampCompressorCls,
+            Class<? extends MetricValueCompressor> metricValueCompressorCls
+    ) throws Exception {
+        this(timestampCompressorCls, metricValueCompressorCls, true);
+    }
+
+    /**
+     * Construct time-series compressor by specific compressor using default value predictor.
      *
      * @param timestampCompressorCls   the Class object of timestamp compressor.
      * @param metricValueCompressorCls the Class object of value compressor.
@@ -64,15 +79,15 @@ public abstract class TimeSeriesCompressor {
         Constructor<? extends MetricValueCompressor>
                 valueCompressorConstructor = metricValueCompressorCls.getConstructor(BitWriter.class);
         if (isSeparate) {
-            BitBufferWriter output = new BitBufferWriter();
-            this.timestampCompressor = timestampCompressorConstructor.newInstance(output);
-            this.valueCompressor = valueCompressorConstructor.newInstance(output);
-        }
-        else {
-            BitBufferWriter timestampOutput = new BitBufferWriter();
-            BitBufferWriter valueOutput = new BitBufferWriter();
+            BitWriter timestampOutput = new BitBufferWriter();
+            BitWriter valueOutput = new BitBufferWriter();
             this.timestampCompressor = timestampCompressorConstructor.newInstance(timestampOutput);
             this.valueCompressor = valueCompressorConstructor.newInstance(valueOutput);
+        }
+        else {
+            BitWriter output = new BitBufferWriter();
+            this.timestampCompressor = timestampCompressorConstructor.newInstance(output);
+            this.valueCompressor = valueCompressorConstructor.newInstance(output);
         }
         this.isSeparate = isSeparate;
     }
@@ -121,28 +136,32 @@ public abstract class TimeSeriesCompressor {
      *
      * @param filename The name of the file to be compressed.
      */
-    public void compress(String filename, boolean isDoubleValue) {
+    public void compress(String filename, boolean isLongOrDoubleValue) {
         // Read specific dataset file and divide the data into timestamp and metric value buffer.
-        if (isDoubleValue)
-            DatasetReader.readAndDivideDouble(filename);
-        else
-            DatasetReader.readAndDivideLong(filename);
-        // Compress the uncompressed buffer.
-        compress(DatasetReader.getTimestampBuffer(), DatasetReader.getValueBuffer());
+        if (isSeparate) {
+            if (isLongOrDoubleValue)
+                DatasetReader.readAndDivideLong(filename);
+            else
+                DatasetReader.readAndDivideDouble(filename);
+            // Compress the read buffer.
+            compress(DatasetReader.getTimestampBuffer(), DatasetReader.getValueBuffer());
+        }
+        else {
+            compress(DatasetReader.read(filename));
+        }
     }
 
 
     /**
      * Compress a time series buffer.
      */
+    @Deprecated
     public void compress(ByteBuffer timeSeriesBuffer) {
-        // Create a new buffer reference to the same uncompressed data.
-        ByteBuffer uncompressedBuffer = timeSeriesBuffer.duplicate();
-        uncompressedBuffer.rewind();
+        timeSeriesBuffer.rewind();
         // Compress every pair in the uncompressed buffer.
-        while (uncompressedBuffer.remaining() >= Long.BYTES * 2) {
-            timestampCompressor.addTimestamp(uncompressedBuffer.getLong());
-            valueCompressor.addValue(uncompressedBuffer.getLong());
+        while (timeSeriesBuffer.remaining() >= Long.BYTES * 2) {
+            timestampCompressor.addTimestamp(timeSeriesBuffer.getLong());
+            valueCompressor.addValue(timeSeriesBuffer.getLong());
         }
     }
 
@@ -176,27 +195,36 @@ public abstract class TimeSeriesCompressor {
      * Close the block and flush the remaining stuff of current byte to the buffer.
      */
     public void close() {
+        // Write the remaining bits into output buffer for byte-alignment.
         // Close the timestamp compression stream.
         timestampCompressor.close();
         // Close the value compression stream.
         valueCompressor.close();
 
-        // Write the remaining bits into output buffer for byte-alignment.
-        if (isSeparate && getTimestampOutput() != null && getValueOutput() != null) {
-            getTimestampOutput().flush();
-            getValueOutput().flush();
-        }
-        else if (!isSeparate && getOutput() != null) {
-            getOutput().flush();
-        }
+
+//        if (isSeparate && getTimestampOutput() != null && getValueOutput() != null) {
+//            getTimestampOutput().flush();
+//            getValueOutput().flush();
+//        }
+//        else if (!isSeparate && getOutput() != null) {
+//            getOutput().flush();
+//        }
     }
 
     public BitWriter getTimestampOutput() {
         return timestampCompressor.getOutput();
     }
 
+    public ByteBuffer getCompressedTimestampBuffer() {
+        return timestampCompressor.getOutput().getBuffer();
+    }
+
     public BitWriter getValueOutput() {
         return valueCompressor.getOutput();
+    }
+
+    public ByteBuffer getCompressedValueBuffer() {
+        return valueCompressor.getOutput().getBuffer();
     }
 
     public boolean isSeparate() {

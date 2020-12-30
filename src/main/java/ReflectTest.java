@@ -1,5 +1,3 @@
-package cn.tomandersen.timeseries.compression;
-
 import java.lang.reflect.Array;
 import java.util.Arrays;
 

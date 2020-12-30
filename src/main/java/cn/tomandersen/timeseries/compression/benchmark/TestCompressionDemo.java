@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.APE.demos;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 import java.nio.ByteBuffer;
 

@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.APE.demos;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 import cn.tomandersen.timeseries.compression.DatasetReader;
 
@@ -19,9 +19,9 @@ public class DatasetReaderDemo {
         ByteBuffer timestampBuffer = DatasetReader.getTimestampBuffer();
         ByteBuffer valueBuffer = DatasetReader.getValueBuffer();
 
-//        // Transform write mode to read mode.
-//        timestampBuffer.flip();
-//        valueBuffer.flip();
+        // Transform write mode to read mode.
+        timestampBuffer.flip();
+        valueBuffer.flip();
 
         // Print the content in the buffer.
         while (timestampBuffer.hasRemaining()) {

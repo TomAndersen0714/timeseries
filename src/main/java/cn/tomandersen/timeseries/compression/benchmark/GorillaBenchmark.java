@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.gorilla.benchmark;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 import org.openjdk.jmh.annotations.*;
 

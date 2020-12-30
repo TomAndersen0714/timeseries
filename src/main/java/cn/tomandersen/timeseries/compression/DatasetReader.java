@@ -101,12 +101,12 @@ public class DatasetReader {
     }
 
     public static ByteBuffer getTimestampBuffer() {
-        timestampBuffer.flip();
+//        timestampBuffer.flip();
         return timestampBuffer;
     }
 
     public static ByteBuffer getValueBuffer() {
-        valueBuffer.flip();
+//        valueBuffer.flip();
         return valueBuffer;
     }
 

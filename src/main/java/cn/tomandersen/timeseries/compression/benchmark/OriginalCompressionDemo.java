@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.gorilla.demos;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.DatasetReader;
@@ -25,8 +25,9 @@ public class OriginalCompressionDemo {
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
         ByteBuffer uncompressedValueBuffer = DatasetReader.getValueBuffer();
 
-//        uncompressedTimestampBuffer.flip();
-//        uncompressedValueBuffer.flip();
+        // Switch write mode to read mode.
+        uncompressedTimestampBuffer.flip();
+        uncompressedValueBuffer.flip();
 
         long now = 1523075453;
         BitBufferWriter timestampOutput = new BitBufferWriter();

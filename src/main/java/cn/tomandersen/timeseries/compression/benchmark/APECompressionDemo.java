@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.APE.demos;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 import cn.tomandersen.timeseries.compression.APE.APETSCompressor;
 import cn.tomandersen.timeseries.compression.BitBufferWriter;
@@ -14,7 +14,7 @@ import java.time.Instant;
  * @version 1.0
  * @date 2020/12/5
  */
-public class APECompressionDemo {
+public class APECompressionDemo extends CompressionDemo{
     // Set for statistic
     public static int a0, a1, a2, a3, a4; // Timestamp distribution
     public static int b0, b1, b2; // Metric value distribution
@@ -32,9 +32,9 @@ public class APECompressionDemo {
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
         ByteBuffer uncompressedValueBuffer = DatasetReader.getValueBuffer();
 
-//        // Switch write mode to read mode.
-//        uncompressedTimestampBuffer.flip();
-//        uncompressedValueBuffer.flip();
+        // Switch write mode to read mode.
+        uncompressedTimestampBuffer.flip();
+        uncompressedValueBuffer.flip();
 
         // Compress
         BitBufferWriter compressedTimestampOutput = new BitBufferWriter();
@@ -63,7 +63,7 @@ public class APECompressionDemo {
         compressedValueByteBuffer.flip();
 
 //        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
-        printResult(
+        printResultSeparately(
                 uncompressedTimestampBuffer,
                 uncompressedValueBuffer,
                 compressedTimestampByteBuffer,
@@ -88,10 +88,10 @@ public class APECompressionDemo {
         tsDecompressor.decompress();*/
 
         // Print decompressed data
-//        printDecompressedData(decompressedTimestampsByteBuffer, decompressedValuesByteBuffer);
+//        printDecompressedData(decompressedTimestampsByteBuffer, decompressedValuesByteBuffer,false);
     }
 
-    private static void printResult(
+    protected static void printResultSeparately(
             ByteBuffer uncompressedTimestampBuffer,
             ByteBuffer uncompressedValueBuffer,
             ByteBuffer compressedTimestampBuffer,
@@ -133,30 +133,6 @@ public class APECompressionDemo {
                 d0 + " " + d1 + " " + d2);*/
     }
 
-    private static void printDecompressedData(
-            ByteBuffer decompressedTimestampsByteBuffer, ByteBuffer decompressedValuesByteBuffer
-    ) {
-        while (decompressedTimestampsByteBuffer.hasRemaining()) {
-            System.out.print(decompressedTimestampsByteBuffer.getLong());
-            System.out.print(" ");
-            System.out.print(decompressedValuesByteBuffer.getDouble());
-            System.out.println();
-        }
-    }
-
-
-    private static void printCompressedData(
-            ByteBuffer compressedTimestampByteBuffer, ByteBuffer compressedValueByteBuffer
-    ) {
-        while (compressedTimestampByteBuffer.hasRemaining()) {
-            System.out.printf("%02X ", Byte.toUnsignedInt(compressedTimestampByteBuffer.get()));
-        }
-        System.out.println();
-        while (compressedValueByteBuffer.hasRemaining()) {
-            System.out.printf("%02X ", Byte.toUnsignedInt(compressedValueByteBuffer.get()));
-        }
-        System.out.println();
-    }
 
     public static void main(String[] args) {
         String filename = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\IoT\\IoT2";

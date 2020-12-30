@@ -77,6 +77,9 @@ public class BitPackValueCompressor extends MetricValueCompressor {
         isClosed = true;
         // Flush the left value in current frame.
         if (pos != 0) flush();
+
+        // Write the cached byte(s) to the buffer.
+        output.flush();
     }
 
 }

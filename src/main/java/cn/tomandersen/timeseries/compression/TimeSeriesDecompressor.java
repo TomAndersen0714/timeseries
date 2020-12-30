@@ -1,5 +1,9 @@
 package cn.tomandersen.timeseries.compression;
 
+import fi.iki.yak.ts.compression.gorilla.Predictor;
+import fi.iki.yak.ts.compression.gorilla.ValueDecompressor;
+
+import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 
 /**
@@ -8,12 +12,12 @@ import java.nio.ByteBuffer;
  * @author TomAndersen
  * @version 1.0
  * @date 2020/12/1
+ * @see TimeSeriesCompressor
  */
 public abstract class TimeSeriesDecompressor {
 
-
-    protected final TimestampDecompressor timestampDecompressor;
-    protected final MetricValueDecompressor valueDecompressor;
+    private TimestampDecompressor timestampDecompressor;
+    private MetricValueDecompressor valueDecompressor;
 
     private ByteBuffer decompressedTimestampBuffer;
     private ByteBuffer decompressedValueBuffer;
@@ -74,8 +78,6 @@ public abstract class TimeSeriesDecompressor {
         if (timestamp == TimestampDecompressor.END_SIGN) return null;
         return new TSPair(timestamp, valueDecompressor.nextValue());
     }
-
-    ;
 
     /**
      * Decompress the entire/remaining block into decompressedOutputBuffer buffer.

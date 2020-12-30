@@ -2,7 +2,7 @@ package cn.tomandersen.timeseries.compression.gorilla;
 
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
-import cn.tomandersen.timeseries.compression.gorilla.demos.GorillaCompressionDemo;
+import cn.tomandersen.timeseries.compression.benchmark.GorillaCompressionDemo;
 import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
@@ -141,5 +141,6 @@ public class GorillaValueCompressor extends MetricValueCompressor {
     public void close() {
         isClosed = true;
         // Do nothing.
+        output.flush();
     }
 }

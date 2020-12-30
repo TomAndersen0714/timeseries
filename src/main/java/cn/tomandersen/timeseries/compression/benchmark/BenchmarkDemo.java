@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.gorilla.demos;
+package cn.tomandersen.timeseries.compression.benchmark;
 
 //import fi.iki.yak.ts.compression.gorilla.benchmark.EncodingBenchmark;
 import org.openjdk.jmh.runner.Runner;

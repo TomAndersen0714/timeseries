@@ -34,7 +34,7 @@ public abstract class MetricValueCompressor {
     }
 
     /**
-     * Close the buffer and stop compression.
+     * Close the buffer and stop compression, then flush the writer.
      */
     public abstract void close();
 

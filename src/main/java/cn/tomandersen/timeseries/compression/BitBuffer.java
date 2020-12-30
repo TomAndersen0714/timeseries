@@ -17,7 +17,7 @@ public abstract class BitBuffer {
     // Cached byte for reader.
     protected byte cacheByte;
     // The number of unread bits in cached byte.
-    protected int leftBits = Byte.SIZE;
+    protected int leftBits = 0;
 
     private static final int DEFAULT_CAPACITY = 4096;
 
@@ -27,7 +27,6 @@ public abstract class BitBuffer {
 
     protected BitBuffer(int capacity) {
         this.buffer = ByteBuffer.allocate(capacity);
-        this.cacheByte = buffer.get(buffer.position());
     }
 
     protected BitBuffer(ByteBuffer byteBuffer) {
@@ -35,9 +34,31 @@ public abstract class BitBuffer {
     }
 
     /**
+     * Expand the capacity of buffer.
+     */
+    protected void expand() {
+        int cap = buffer.capacity();
+        ByteBuffer largerBuffer = ByteBuffer.allocateDirect((cap >> 1) + cap);
+        buffer.flip();
+
+        largerBuffer.put(buffer);
+        //******************
+//        largerBuffer.position(buffer.capacity());
+        //******************
+        buffer = largerBuffer;
+    }
+
+    /**
      * Returns the output buffer.
      */
     public ByteBuffer getBuffer() {
         return this.buffer;
+    }
+
+    /**
+     * Flush the cache byte.
+     */
+    protected void flipByte() {
+
     }
 }

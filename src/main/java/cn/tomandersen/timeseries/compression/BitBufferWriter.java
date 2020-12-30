@@ -13,6 +13,8 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
 
     public BitBufferWriter() {
         super();
+        this.cacheByte = buffer.get(buffer.position());
+        this.leftBits = Byte.SIZE;
     }
 
     public BitBufferWriter(ByteBuffer byteBuffer) {
@@ -133,25 +135,10 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
     }
 
     /**
-     * Expand the capacity of buffer.
-     */
-    @WaitForTest
-    private void expand() {
-        ByteBuffer largerBuffer = ByteBuffer.allocateDirect(buffer.capacity() * 2);
-        buffer.flip();
-
-        largerBuffer.put(buffer);
-        //******************
-//        largerBuffer.position(buffer.capacity());
-        //******************
-        buffer = largerBuffer;
-    }
-
-    /**
      * If cached byte is full, then write it into buffer and get next empty byte.
      */
     @WaitForTest
-    private void flipByte() {
+    protected void flipByte() {
         if (leftBits == 0) {
             buffer.put(cacheByte);
             if (!buffer.hasRemaining())

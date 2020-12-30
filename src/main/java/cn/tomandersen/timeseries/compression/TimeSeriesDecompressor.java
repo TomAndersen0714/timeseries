@@ -86,35 +86,39 @@ public abstract class TimeSeriesDecompressor {
     public void decompress() {
         // Decompress next timestamp.
         long timestamp, value;
-        if (!isSeparate) {
-            ByteBuffer timeSeriesOutput = getDecompressedOutputBuffer();
-            if (timeSeriesOutput == null) return;
+
+        if (isSeparate) {
+//            ByteBuffer decompressedTimestampBuffer = getDecompressedTimestampBuffer();
+//            ByteBuffer decompressedValueBuffer = getDecompressedValueBuffer();
+            if (decompressedTimestampBuffer == null || decompressedValueBuffer == null) return;
+            // Decompress the timestamp and metric value and store into respective output buffer,
+            // until reach the end of the block.
+            while ((timestamp = timestampDecompressor.nextTimestamp())
+                    != TimestampDecompressor.END_SIGN) {
+                try {
+                    value = valueDecompressor.nextValue();
+                } catch (Exception e) {
+                    value = 0;
+                }
+                decompressedTimestampBuffer.putLong(timestamp);
+                decompressedValueBuffer.putLong(value);
+            }
+            // Switch buffer from 'write' mode to 'read' mode.
+            decompressedTimestampBuffer.flip();
+            decompressedValueBuffer.flip();
+        }
+        else {
+            if (decompressedOutputBuffer == null) return;
             // Decompress the timestamp and metric value and store into output buffer,
             // until reach the end of the block.
             while ((timestamp = timestampDecompressor.nextTimestamp())
                     != TimestampDecompressor.END_SIGN) {
                 value = valueDecompressor.nextValue();
-                timeSeriesOutput.putLong(timestamp);
-                timeSeriesOutput.putLong(value);
+                decompressedOutputBuffer.putLong(timestamp);
+                decompressedOutputBuffer.putLong(value);
             }
             // Switch buffer from 'write' mode to 'read' mode.
-            timeSeriesOutput.flip();
-        }
-        else {
-            ByteBuffer timestampsOutput = getDecompressedTimestampBuffer();
-            ByteBuffer valuesOutput = getDecompressedValueBuffer();
-            if (timestampsOutput == null || valuesOutput == null) return;
-            // Decompress the timestamp and metric value and store into respective output buffer,
-            // until reach the end of the block.
-            while ((timestamp = timestampDecompressor.nextTimestamp())
-                    != TimestampDecompressor.END_SIGN) {
-                value = valueDecompressor.nextValue();
-                timestampsOutput.putLong(timestamp);
-                valuesOutput.putLong(value);
-            }
-            // Switch buffer from 'write' mode to 'read' mode.
-            timestampsOutput.flip();
-            valuesOutput.flip();
+            decompressedOutputBuffer.flip();
         }
     }
 

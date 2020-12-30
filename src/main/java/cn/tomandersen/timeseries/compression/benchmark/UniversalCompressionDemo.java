@@ -68,7 +68,7 @@ public class UniversalCompressionDemo extends CompressionDemo{
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
-//        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
+        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
 
         // Decompress
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
@@ -77,13 +77,11 @@ public class UniversalCompressionDemo extends CompressionDemo{
         compressedTimestampByteBuffer.rewind();
         compressedValueByteBuffer.rewind();
 
-        BitBufferReader compressedTimestampsBitInput = new BitBufferReader(compressedTimestampByteBuffer);
-        BitBufferReader compressedValueBitInput = new BitBufferReader(compressedValueByteBuffer);
         ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         UniversalTSDecompressor tsDecompressor = new UniversalTSDecompressor(
-                new APETimestampDecompressor1(compressedTimestampsBitInput),
-                new BitPackValueDecompressor(compressedValueBitInput),
+                new APETimestampDecompressor1(new BitBufferReader(compressedTimestampByteBuffer)),
+                new BitPackValueDecompressor(new BitBufferReader(compressedValueByteBuffer)),
                 decompressedTimestampsBuffer, decompressedValuesBuffer
         );
         tsDecompressor.decompress();
@@ -102,20 +100,23 @@ public class UniversalCompressionDemo extends CompressionDemo{
 
     public static void main(String[] args) throws Exception {
         String path = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\";
-//        String dataset = "tmp\\Server43";
-//        String dataset = "tmp\\testDataset";
+//        String dataset = "tmp\\Server35";
+        String dataset = "tmp\\testDataset";
 //        String dataset = "UCR\\CinC_ECG_torso";
 //        String dataset = "UCR\\UWaveGestureLibraryAll";
-        String[] integerValueDatasets = new String[]{
-                "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
-                "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
-                "tmp\\Server106", "tmp\\Server115"
-        };
 
-        for (String dataset : integerValueDatasets) {
-            System.out.println("----------");
-            System.out.println(dataset);
-            compressionDemo(path + dataset, true);
-        }
+        compressionDemo(path+dataset,true);
+
+//        String[] integerValueDatasets = new String[]{
+//                "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
+//                "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
+//                "tmp\\Server106", "tmp\\Server115"
+//        };
+//
+//        for (String dataset : integerValueDatasets) {
+//            System.out.println("----------");
+//            System.out.println(dataset);
+//            compressionDemo(path + dataset, true);
+//        }
     }
 }

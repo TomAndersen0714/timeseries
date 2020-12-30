@@ -1,8 +1,9 @@
 package cn.tomandersen.timeseries.compression.benchmark;
 
+import cn.tomandersen.timeseries.compression.BitBufferReader;
 import cn.tomandersen.timeseries.compression.BitBufferWriter;
 import cn.tomandersen.timeseries.compression.DatasetReader;
-import cn.tomandersen.timeseries.compression.gorilla.GorillaTSCompressor;
+import cn.tomandersen.timeseries.compression.gorilla.*;
 
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -67,24 +68,22 @@ public class GorillaCompressionDemo extends CompressionDemo {
                 compressedValueByteBuffer,
                 clock);
 
-/*
         // Decompress
-        compressedTimestampByteBuffer.flip();
+/*        compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
-        BitBufferReader compressedTimestampsBitInput = new BitBufferReader(compressedTimestampByteBuffer);
-        BitBufferReader compressedValuesBitInput = new BitBufferReader((compressedValueByteBuffer));
+
         ByteBuffer decompressedTimestampsByteBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesByteBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         GorillaTSDecompressor tsDecompressor = new GorillaTSDecompressor(
-                compressedTimestampsBitInput,
-                compressedValuesBitInput,
+                new GorillaTimestampDecompressor(new BitBufferReader(compressedTimestampByteBuffer)),
+                new GorillaValueDecompressor(new BitBufferReader(compressedValueByteBuffer)),
                 decompressedTimestampsByteBuffer,
                 decompressedValuesByteBuffer
         );
-        tsDecompressor.decompress();
+        tsDecompressor.decompress();*/
 
         // Print decompressed data
-        printDecompressedData(decompressedTimestampsByteBuffer, decompressedValuesByteBuffer,false);*/
+//        printDecompressedData(decompressedTimestampsByteBuffer, decompressedValuesByteBuffer,false);
 
 
     }

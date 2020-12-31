@@ -14,7 +14,7 @@ import java.time.Instant;
  * @version 1.0
  * @date 2020/11/26
  */
-public class OriginalCompressionDemo {
+public class OriginalCompressionDemo extends CompressionDemo{
     public static void compressAndDecompressDemo(String dataset) {
         String path = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\";
         String filename = path + dataset;
@@ -80,38 +80,6 @@ public class OriginalCompressionDemo {
                 uncompressedTimestampBuffer, uncompressedValueBuffer,
                 compressedTimestampBuffer, compressedValueBuffer, clock
         );
-    }
-
-    private static void printResult(
-            ByteBuffer uncompressedTimestampBuffer,
-            ByteBuffer uncompressedValueBuffer,
-            ByteBuffer compressedTimestampBuffer,
-            ByteBuffer compressedValueBuffer,
-            long compressionTime
-    ) {
-        int uncompressedTimestampSize = uncompressedTimestampBuffer.limit();
-        int uncompressedValueSize = uncompressedValueBuffer.limit();
-        int compressedTimestampSize = compressedTimestampBuffer.limit();
-        int compressedValueSize = compressedValueBuffer.limit();
-        System.out.println(
-                "Timestamps: " +
-                        uncompressedTimestampSize + "B" + " -> " +
-                        compressedTimestampSize + "B"
-        );
-        System.out.println("Timestamps compression ratio: " + (float) uncompressedTimestampSize / compressedTimestampSize);
-
-        System.out.println(
-                "Metric values: " +
-                        uncompressedValueSize + "B" + " -> " +
-                        compressedValueSize + "B"
-        );
-
-        System.out.println("Metric values compression ratio: " + (float) uncompressedValueSize / compressedValueSize);
-
-        float ratio = (float) (uncompressedTimestampSize + uncompressedValueSize)
-                / (compressedTimestampSize + compressedValueSize);
-        System.out.println("Compression ratio: " + ratio);
-        System.out.println("Compression time: " + compressionTime);
     }
 
     public static void main(String[] args) {

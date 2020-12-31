@@ -12,7 +12,7 @@ import cn.tomandersen.timeseries.compression.predictor.Predictor;
  * @version 1.0
  * @date 2020/12/5
  */
-public class APEValueCompressor2 extends MetricValueCompressor {
+public class BucketValueCompressor extends MetricValueCompressor {
 
     private int prevLeadingZeros = Integer.MAX_VALUE;
     private int prevTrailingZeros = Integer.MAX_VALUE;
@@ -20,14 +20,12 @@ public class APEValueCompressor2 extends MetricValueCompressor {
     private static final int MASK_OFFSET_4 = 0b10 << 4;
     private static final int MASK_OFFSET_6 = 0b11 << 6;
 
-    private long l0 = 0, l1 = 0;
 
-
-    public APEValueCompressor2(BitWriter out) {
+    public BucketValueCompressor(BitWriter out) {
         super(out);
     }
 
-    public APEValueCompressor2(BitWriter out, Predictor predictor) {
+    public BucketValueCompressor(BitWriter out, Predictor predictor) {
         super(out, predictor);
     }
 
@@ -217,47 +215,6 @@ public class APEValueCompressor2 extends MetricValueCompressor {
 //        // Update the number of leading and trailing zeros.
 //        prevLeadingZeros = leadingZeros;
 //        prevTrailingZeros = trailingZeros;
-    }
-
-    /**
-     * Select prediction mode and return predicted value.
-     *
-     * @param value value to compress.
-     * @return predicted value
-     */
-    private long predict(long value) {
-        // Calculate the predicted value in different model.
-        long x0 = l0, x1 = l1, x2 = l1 + l1 - l0;
-        long e0 = Math.abs(x0 - value), e1 = Math.abs(x1 - value), e2 = Math.abs(x2 - value);
-        // Update cached previous value.
-        l0 = l1;
-        l1 = value;
-        // Select best predicted value, write control bits which represent the selection info, and
-        // return the best predicted value.
-        if (e1 <= e0) {
-            if (e1 <= e2) {
-                // e1: Write the '0' control bit.
-                output.writeZeroBit();
-                return x1;
-            }
-            else {
-                // e2: Write the '11' control bit.
-                output.writeBits(0b11, 2);
-                return x2;
-            }
-        }
-        else {
-            if (e0 <= e2) {
-                // e0: Write the '10' control bit.
-                output.writeBits(0b10, 2);
-                return x0;
-            }
-            else {
-                // e2: Write the '11' control bit.
-                output.writeBits(0b11, 2);
-                return x2;
-            }
-        }
     }
 
     /**

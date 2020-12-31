@@ -13,6 +13,7 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
 
     public BitBufferWriter() {
         super();
+        // Cache first empty byte, and reset the 'leftBits'
         this.cacheByte = buffer.get(buffer.position());
         this.leftBits = Byte.SIZE;
     }

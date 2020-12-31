@@ -5,22 +5,22 @@ import cn.tomandersen.timeseries.compression.TimestampCompressor;
 import cn.tomandersen.timeseries.compression.TimestampDecompressor;
 
 /**
- * <h3>APETimestampDecompressor1</h3>
+ * <h3>RLETimestampDecompressor</h3>
  *
  * @author TomAndersen
  * @version 1.0
  * @date 2020/12/5
  */
-public class APETimestampDecompressor1 extends TimestampDecompressor {
+public class RLETimestampDecompressor extends TimestampDecompressor {
 
-    private long prevTimestamp = 0;
+    private long prevTimestamp = -1;
     private long prevDelta = 0;
     private long storedZeros = 0;
 
     private boolean isClosed = false;
 
 
-    public APETimestampDecompressor1(BitReader input) {
+    public RLETimestampDecompressor(BitReader input) {
         super(input);
     }
 
@@ -32,6 +32,12 @@ public class APETimestampDecompressor1 extends TimestampDecompressor {
         // If reach the end of the buffer, return 0L.
         if (isClosed)
             return TimestampDecompressor.END_SIGN;
+
+        // Get the head of current block.
+        if (prevTimestamp < 0) {
+            prevTimestamp = input.nextLong();
+            return prevTimestamp;
+        }
 
         // If storedZeros != 0, previous and current timestamp interval(delta) is same,
         // just update prevTimestamp and storedZeros, and return prevTimestamp.

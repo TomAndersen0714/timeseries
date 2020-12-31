@@ -5,18 +5,18 @@ import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
 
 /**
- * <h3>APETimestampCompressor1</h3>
+ * <h3>RLETimestampCompressor</h3>
  * Difference from {@link APETimestampCompressor} is about the control bits and the size of the each bucket.
  * This class have used shorter control bits and smaller bucket for better compression ratio.
  *
  * @author TomAndersen
  * @version 1.0
  * @date 2020/12/5
- * @see APETimestampDecompressor1
+ * @see RLETimestampDecompressor
  */
-public class APETimestampCompressor1 extends TimestampCompressor {
+public class RLETimestampCompressor extends TimestampCompressor {
 
-    private long prevTimestamp = 0;
+    private long prevTimestamp = -1;
     private int prevDelta = 0;
     private int storedZeros = 0;
 
@@ -28,19 +28,25 @@ public class APETimestampCompressor1 extends TimestampCompressor {
 //    private static final int DELTA_9_MASK = 0b110 << 9;
 //    private static final int DELTA_12_MASK = 0b1110 << 12;
 
-    public APETimestampCompressor1(BitWriter output) {
+    public RLETimestampCompressor(BitWriter output) {
         super(output);
     }
 
     /**
      * Compress a timestamp into specific {@link BitWriter buffer stream}.
      *
-     * @param timestamp unix timestamp in second.
+     * @param timestamp unix timestamp in second or millisecond.
      */
     @Override
     public void addTimestamp(long timestamp) {
+        // Write the header of current block for supporting millisecond.
+        if (prevTimestamp < 0) {
+            prevTimestamp = timestamp;
+            output.writeLong(timestamp);
+            return;
+        }
 
-        // Calculate the delta of delta
+        // Calculate the delta of delta.
         int newDelta = (int) (timestamp - prevTimestamp);
         int deltaOfDelta = newDelta - prevDelta;
 

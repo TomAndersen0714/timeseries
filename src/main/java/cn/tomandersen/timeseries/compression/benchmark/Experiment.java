@@ -46,12 +46,18 @@ public class Experiment {
                 "UCR\\StarLightCurves"
         };
 
+        String[] integerValueDatasets = new String[]{
+                "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
+                "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
+                "tmp\\Server106", "tmp\\Server115"
+        };
+
         for (String dataset : serverDataset) {
             System.out.println("---------");
             System.out.println(dataset);
-            GorillaCompressionDemo.compressionDemo(path + dataset);
+            GorillaCompressionDemo.compressionDemo(path + dataset, false);
             System.out.println();
-            APECompressionDemo.compressionDemo(path + dataset);
+            APECompressionDemo.compressionDemo(path + dataset, false);
         }
 
     }

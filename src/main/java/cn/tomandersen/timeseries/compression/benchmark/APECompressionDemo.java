@@ -14,14 +14,14 @@ import java.time.Instant;
  * @version 1.0
  * @date 2020/12/5
  */
-public class APECompressionDemo extends CompressionDemo{
+public class APECompressionDemo extends CompressionDemo {
     // Set for statistic
     public static int a0, a1, a2, a3, a4; // Timestamp distribution
     public static int b0, b1, b2; // Metric value distribution
     public static int c0, c1, c2; // XOR value leading zeros distribution
     public static int d0, d1, d2; // XOR value trailing zeros distribution
 
-    public static void compressionDemo(String filename) {
+    public static void compressionDemo(String filename, boolean isLongOrDoubleValue) {
 
         // Read file and get buffer.
 //        String filePath = "C:\\Users\\DELL\\Desktop\\testDataset";
@@ -42,8 +42,8 @@ public class APECompressionDemo extends CompressionDemo{
         APETSCompressor tsCompressor =
                 new APETSCompressor(compressedTimestampOutput, compressedValueOutput);
 //        UniversalTSCompressor tsCompressor = new UniversalTSCompressor(
-//                new APETimestampCompressor1(compressedTimestampOutput),
-//                new APEValueCompressor2(compressedValueOutput)
+//                new RLETimestampCompressor(compressedTimestampOutput),
+//                new BucketValueCompressor(compressedValueOutput)
 //        );
 
         // Start time
@@ -135,7 +135,8 @@ public class APECompressionDemo extends CompressionDemo{
 
 
     public static void main(String[] args) {
-        String filename = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\IoT\\IoT2";
-        compressionDemo(filename);
+        String path = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\";
+        String dataset = "IoT\\IoT2";
+        compressionDemo(path + dataset, false);
     }
 }

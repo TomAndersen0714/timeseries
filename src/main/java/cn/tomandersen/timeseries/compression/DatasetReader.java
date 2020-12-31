@@ -24,6 +24,9 @@ public class DatasetReader {
     private static ByteBuffer timestampBuffer;
     private static ByteBuffer valueBuffer;
 
+    private static String cacheLongValueFilePath = ""; // Cache the last read filename avoid repeat reading.
+    private static String cacheDoubleValueFilePath = ""; // Cache the last read filename avoid repeat reading.
+
     private DatasetReader() {
     }
 
@@ -43,11 +46,17 @@ public class DatasetReader {
      * This method read the file by 'Reader' instead of 'InputStream', and parse every row
      * into two long type value.
      */
-    public static void readAndDivideLong(String filePath) {
+    public static void readAndDivideLong(String filename) {
+        if (cacheLongValueFilePath.equals(filename)) {
+            timestampBuffer.rewind();
+            valueBuffer.rewind();
+            return;
+        }
+        cacheLongValueFilePath = filename;
         String line = "";
         int capacity; // The number of data point.
         // Read file and get timestamp and metric value line by line.
-        try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
             // Get the total number of point
             capacity = Integer.parseInt(in.readLine());
 
@@ -64,7 +73,6 @@ public class DatasetReader {
                     valueBuffer.putLong(Long.parseLong(strings[1]));
                 } catch (NumberFormatException e) {
                     valueBuffer.putLong(Double.doubleToRawLongBits(Double.parseDouble(strings[1])));
-                    System.out.println(line);
                 }
             }
         } catch (Exception e) {
@@ -78,11 +86,17 @@ public class DatasetReader {
      * This method read the file by 'Reader' instead of 'InputStream', and parse every row
      * into a long type and double type value.
      */
-    public static void readAndDivideDouble(String filePath) {
+    public static void readAndDivideDouble(String filename) {
+        if (cacheDoubleValueFilePath.equals(filename)) {
+            timestampBuffer.rewind();
+            valueBuffer.rewind();
+            return;
+        }
+        cacheDoubleValueFilePath = filename;
         String line;
         int capacity; // The number of data point.
         // Read file and get timestamp and metric value line by line.
-        try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
             // Get the total number of point
             capacity = Integer.parseInt(in.readLine());
 

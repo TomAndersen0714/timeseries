@@ -24,8 +24,8 @@ public class APETSCompressor extends TimeSeriesCompressor {
 
     public APETSCompressor(BitWriter timestampOutput, BitWriter valueOutput) {
         super(
-                new APETimestampCompressor1(timestampOutput),
-                new APEValueCompressor2(valueOutput)
+                new RLETimestampCompressor(timestampOutput),
+                new BucketValueCompressor(valueOutput)
         );
     }
 

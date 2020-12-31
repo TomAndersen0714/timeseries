@@ -41,8 +41,7 @@ public class APEValueCompressor1 extends MetricValueCompressor {
 //        long diff = predict(value) ^ value;
 
         if (diff == 0) {
-            // Write '0' bit as entire control bit(i.e. prediction and current value is same).
-//            output.writeZeroBit();
+            // Write '11' bit as entire control bit(i.e. prediction and current value is same).
             output.writeBits(0b11, 2);
 
             APECompressionDemo.b0++;
@@ -90,19 +89,14 @@ public class APEValueCompressor1 extends MetricValueCompressor {
      * Case A:
      * If there at least as many leading zeros and as many trailing zeros as previous value.
      * <p>
-     * Store the second control bit '0' representing the case a.
+     * Store the control bit '10' representing the case a.
      *
      * @param xor XOR between previous value and current
      */
     private void writeInPrevScope(long xor) {
 
-        //******************
         // Write '10' as control bit
         output.writeBits(0b10, 2);
-        //******************
-
-//        // Write '0' bit as second control bit.
-//        output.writeZeroBit();
 
         // Write significant bits of difference value input the scope.
         int significantBits = 64 - prevLeadingZeros - prevTrailingZeros;
@@ -124,14 +118,9 @@ public class APEValueCompressor1 extends MetricValueCompressor {
      * @param trailingZeros New number of trailing zeros
      */
     private void writeInNewScope(long xor, int leadingZeros, int trailingZeros) {
-        //******************
-//        // Write '1' bit as second control bit.
-//        output.writeOneBit();
-//        // Write '0' bit as second control bit.
-//        output.writeZeroBit();
-        output.writeBits(0b1, 1);
-        //******************
 
+        // Write '1' bit as control bit.
+        output.writeBits(0b1, 1);
 
         //******************
         // Statistic analysis

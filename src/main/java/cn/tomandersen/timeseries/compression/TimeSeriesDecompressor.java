@@ -95,11 +95,7 @@ public abstract class TimeSeriesDecompressor {
             // until reach the end of the block.
             while ((timestamp = timestampDecompressor.nextTimestamp())
                     != TimestampDecompressor.END_SIGN) {
-                try {
-                    value = valueDecompressor.nextValue();
-                } catch (Exception e) {
-                    value = 0;
-                }
+                value = valueDecompressor.nextValue();
                 decompressedTimestampBuffer.putLong(timestamp);
                 decompressedValueBuffer.putLong(value);
             }

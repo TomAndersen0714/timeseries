@@ -23,7 +23,7 @@ public class GorillaCompressionDemo extends CompressionDemo {
     public static int c0, c1, c2;
     public static int d0, d1, d2;
 
-    public static void compressionDemo(String filename) {
+    public static void compressionDemo(String filename, boolean isLongOrDoubleValue) {
 
         // Read file and get buffer.
 //        String filePath = "C:\\Users\\DELL\\Desktop\\testDataset";
@@ -51,6 +51,8 @@ public class GorillaCompressionDemo extends CompressionDemo {
 
         // End time
         clock = Instant.now().toEpochMilli() - clock;
+
+
 
         // Print compressed data
 
@@ -127,8 +129,12 @@ public class GorillaCompressionDemo extends CompressionDemo {
     }
 
     public static void main(String[] args) {
-        String filename = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\IoT\\IoT2";
-        compressionDemo(filename);
-//        readDataDemo();
+        String path = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\";
+//        String dataset = "tmp\\Server35";
+        String dataset = "tmp\\testDataset";
+//        String dataset = "UCR\\CinC_ECG_torso";
+//        String dataset = "UCR\\UWaveGestureLibraryAll";
+
+        compressionDemo(path + dataset, true);
     }
 }

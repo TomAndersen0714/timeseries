@@ -1,10 +1,13 @@
 package cn.tomandersen.timeseries.compression.benchmark;
 
-import cn.tomandersen.timeseries.compression.APE.APETimestampCompressor1;
-import cn.tomandersen.timeseries.compression.APE.APETimestampDecompressor1;
+import cn.tomandersen.timeseries.compression.APE.BucketValueCompressor;
+import cn.tomandersen.timeseries.compression.APE.RLETimestampCompressor;
+import cn.tomandersen.timeseries.compression.APE.RLETimestampDecompressor;
 import cn.tomandersen.timeseries.compression.BitBufferReader;
-import cn.tomandersen.timeseries.compression.bitpack.BitPackValueCompressor;
 import cn.tomandersen.timeseries.compression.DatasetReader;
+import cn.tomandersen.timeseries.compression.MetricValueCompressor;
+import cn.tomandersen.timeseries.compression.TimestampCompressor;
+import cn.tomandersen.timeseries.compression.bitpack.BitPackValueCompressor;
 import cn.tomandersen.timeseries.compression.bitpack.BitPackValueDecompressor;
 import cn.tomandersen.timeseries.compression.universal.UniversalTSCompressor;
 import cn.tomandersen.timeseries.compression.universal.UniversalTSDecompressor;
@@ -21,9 +24,13 @@ import java.time.Instant;
  * @see UniversalTSCompressor
  * @see UniversalTSDecompressor
  */
-public class UniversalCompressionDemo extends CompressionDemo{
+public class UniversalCompressionDemo extends CompressionDemo {
 
-    public static void compressionDemo(String filename, boolean isLongOrDoubleValue) throws Exception {
+    public static void compressionDemo(
+            Class<? extends TimestampCompressor> timestampCompressorCls,
+            Class<? extends MetricValueCompressor> metricValueCompressorCls,
+            String filename, boolean isLongOrDoubleValue
+    ) throws Exception {
 
 //        // Read the dataset corresponding to the filename.
 //        // Parse every row into two long type value.
@@ -39,16 +46,14 @@ public class UniversalCompressionDemo extends CompressionDemo{
 //        BitBufferWriter compressedTimestamps = new BitBufferWriter();
 //        BitBufferWriter compressedValues = new BitBufferWriter();
 //        UniversalTSCompressor tsCompressor = new UniversalTSCompressor(
-//                new APETimestampCompressor1(compressedTimestamps),
+//                new RLETimestampCompressor(compressedTimestamps),
 //                new BitPackValueCompressor(compressedValues)
 //        );
 
         UniversalTSCompressor tsCompressor = new UniversalTSCompressor(
-                APETimestampCompressor1.class, BitPackValueCompressor.class
+                timestampCompressorCls, metricValueCompressorCls
         );
 
-        // Start time
-        long clock = Instant.now().toEpochMilli();
 
 //        tsCompressor.compress(uncompressedTimestampBuffer, uncompressedValueBuffer);
 //        tsCompressor.close();
@@ -59,16 +64,13 @@ public class UniversalCompressionDemo extends CompressionDemo{
         tsCompressor.close();
         //**********************
 
-        // End time
-        clock = Instant.now().toEpochMilli() - clock;
-
         // Print compressed data
         ByteBuffer compressedTimestampByteBuffer = tsCompressor.getCompressedTimestampBuffer();
         ByteBuffer compressedValueByteBuffer = tsCompressor.getCompressedValueBuffer();
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
-        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
+//        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
 
         // Decompress
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
@@ -77,16 +79,16 @@ public class UniversalCompressionDemo extends CompressionDemo{
         compressedTimestampByteBuffer.rewind();
         compressedValueByteBuffer.rewind();
 
-        ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
+        /*ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         UniversalTSDecompressor tsDecompressor = new UniversalTSDecompressor(
-                new APETimestampDecompressor1(new BitBufferReader(compressedTimestampByteBuffer)),
+                new RLETimestampDecompressor(new BitBufferReader(compressedTimestampByteBuffer)),
                 new BitPackValueDecompressor(new BitBufferReader(compressedValueByteBuffer)),
                 decompressedTimestampsBuffer, decompressedValuesBuffer
         );
         tsDecompressor.decompress();
         // Print decompressed data
-        printDecompressedData(decompressedTimestampsBuffer, decompressedValuesBuffer, true);
+        printDecompressedData(decompressedTimestampsBuffer, decompressedValuesBuffer, true);*/
 
         // Print result.
         printResult(
@@ -94,7 +96,7 @@ public class UniversalCompressionDemo extends CompressionDemo{
                 uncompressedValueBuffer,
                 compressedTimestampByteBuffer,
                 compressedValueByteBuffer,
-                clock
+                tsCompressor.getClock()
         );
     }
 
@@ -105,18 +107,24 @@ public class UniversalCompressionDemo extends CompressionDemo{
 //        String dataset = "UCR\\CinC_ECG_torso";
 //        String dataset = "UCR\\UWaveGestureLibraryAll";
 
-        compressionDemo(path+dataset,true);
+        compressionDemo(
+                RLETimestampCompressor.class, BucketValueCompressor.class,
+                path + dataset, true);
 
-//        String[] integerValueDatasets = new String[]{
-//                "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
-//                "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
-//                "tmp\\Server106", "tmp\\Server115"
-//        };
-//
-//        for (String dataset : integerValueDatasets) {
-//            System.out.println("----------");
-//            System.out.println(dataset);
-//            compressionDemo(path + dataset, true);
-//        }
+        compressionDemo(
+                RLETimestampCompressor.class, BucketValueCompressor.class,
+                path + dataset, false);
+
+/*        String[] integerValueDatasets = new String[]{
+                "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",
+                "tmp\\Server62", "tmp\\Server77", "tmp\\Server82", "tmp\\Server97",
+                "tmp\\Server106", "tmp\\Server115"
+        };
+
+        for (String dataset : integerValueDatasets) {
+            System.out.println("----------");
+            System.out.println(dataset);
+            compressionDemo(path + dataset, true);
+        }*/
     }
 }

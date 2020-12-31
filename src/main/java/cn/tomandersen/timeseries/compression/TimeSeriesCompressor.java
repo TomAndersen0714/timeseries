@@ -4,6 +4,7 @@ import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 
 /**
  * <h3>TimeSeriesCompressor</h3>
@@ -22,6 +23,8 @@ public abstract class TimeSeriesCompressor {
 
     private boolean isSeparate;
     private BitWriter out;
+
+    private long clock; // Record the time required for compression.
 
     /**
      * Compress the time-series into single stream.
@@ -157,12 +160,18 @@ public abstract class TimeSeriesCompressor {
      */
     @Deprecated
     public void compress(ByteBuffer timeSeriesBuffer) {
+        // Start moment.
+        clock = Instant.now().toEpochMilli();
+
         timeSeriesBuffer.rewind();
         // Compress every pair in the uncompressed buffer.
         while (timeSeriesBuffer.remaining() >= Long.BYTES * 2) {
             timestampCompressor.addTimestamp(timeSeriesBuffer.getLong());
             valueCompressor.addValue(timeSeriesBuffer.getLong());
         }
+
+        // End time
+        clock = Instant.now().toEpochMilli() - clock;
     }
 
     /**
@@ -172,6 +181,9 @@ public abstract class TimeSeriesCompressor {
      * @param valueBuffer     metric value byte buffer to compress.
      */
     public void compress(ByteBuffer timestampBuffer, ByteBuffer valueBuffer) {
+        // Start moment.
+        clock = Instant.now().toEpochMilli();
+
 //        // Create new buffer reference to the same uncompressed data.
 //        ByteBuffer uncompressedTimestamp = timestampBuffer.duplicate();
 //        ByteBuffer uncompressedValue = valueBuffer.duplicate();
@@ -189,6 +201,9 @@ public abstract class TimeSeriesCompressor {
             timestampCompressor.addTimestamp(timestampBuffer.getLong());
             valueCompressor.addValue(valueBuffer.getLong());
         }
+
+        // End time
+        clock = Instant.now().toEpochMilli() - clock;
     }
 
     /**
@@ -233,5 +248,9 @@ public abstract class TimeSeriesCompressor {
 
     public BitWriter getOutput() {
         return out;
+    }
+
+    public long getClock() {
+        return clock;
     }
 }

@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * @version 1.0
  * @date 2020/12/17
  */
-public class TestCompressionDemo {
+public class TestCompressionDemo extends CompressionDemo{
     // Set for statistic
     public static int a0, a1, a2, a3, a4; // Timestamp distribution
     public static int b0, b1, b2; // Metric value distribution
@@ -21,7 +21,7 @@ public class TestCompressionDemo {
 
     }
 
-    private static void printResult(
+    protected static void printResult(
             ByteBuffer uncompressedTimestampBuffer,
             ByteBuffer uncompressedValueBuffer,
             ByteBuffer compressedTimestampBuffer,
@@ -61,28 +61,6 @@ public class TestCompressionDemo {
                 c0 + " " + c1 + " " + c2);
         System.out.println("XOR Value trailing zeros distribution: " +
                 d0 + " " + d1 + " " + d2);
-    }
-
-    private static void printDecompressedData(
-            ByteBuffer decompressedTimestampsByteBuffer, ByteBuffer decompressedValuesByteBuffer
-    ) {
-        while (decompressedTimestampsByteBuffer.hasRemaining()) {
-            System.out.println(decompressedTimestampsByteBuffer.getLong() + " " + decompressedValuesByteBuffer.getDouble());
-        }
-    }
-
-
-    private static void printCompressedData(
-            ByteBuffer compressedTimestampByteBuffer, ByteBuffer compressedValueByteBuffer
-    ) {
-        while (compressedTimestampByteBuffer.hasRemaining()) {
-            System.out.printf("%02X ", Byte.toUnsignedInt(compressedTimestampByteBuffer.get()));
-        }
-        System.out.println();
-        while (compressedValueByteBuffer.hasRemaining()) {
-            System.out.printf("%02X ", Byte.toUnsignedInt(compressedValueByteBuffer.get()));
-        }
-        System.out.println();
     }
 
 

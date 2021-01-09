@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.APE;
+package cn.tomandersen.timeseries.compression.bucket;
 
 import cn.tomandersen.timeseries.compression.benchmark.APECompressionDemo;
 import cn.tomandersen.timeseries.compression.BitWriter;
@@ -6,11 +6,12 @@ import cn.tomandersen.timeseries.compression.MetricValueCompressor;
 import cn.tomandersen.timeseries.compression.predictor.Predictor;
 
 /**
- * Difference with APEValueCompressor is about control bits between case A and case B.
+ * Bucket of bucket algorithm for time-series value compression.
  *
  * @author TomAndersen
  * @version 1.0
  * @date 2020/12/5
+ * @see BucketValueDecompressor
  */
 public class BucketValueCompressor extends MetricValueCompressor {
 

@@ -2,6 +2,7 @@ package cn.tomandersen.timeseries.compression.APE;
 
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimeSeriesCompressor;
+import cn.tomandersen.timeseries.compression.bucket.BucketValueCompressor;
 
 /**
  * <h3>APE Time Series Compressor</h3>

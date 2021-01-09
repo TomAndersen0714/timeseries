@@ -1,8 +1,7 @@
 package cn.tomandersen.timeseries.compression.benchmark;
 
-import cn.tomandersen.timeseries.compression.APE.BucketValueCompressor;
 import cn.tomandersen.timeseries.compression.APE.RLETimestampCompressor;
-import cn.tomandersen.timeseries.compression.bitpack.BitPackValueCompressor;
+import cn.tomandersen.timeseries.compression.gorilla.GorillaValueCompressor;
 
 /**
  * @author TomAndersen
@@ -67,7 +66,7 @@ public class Experiment1 {
             System.out.println("---------");
             System.out.println(dataset);
             UniversalCompressionDemo.compressionDemo(
-                    RLETimestampCompressor.class, BucketValueCompressor.class,
+                    RLETimestampCompressor.class, GorillaValueCompressor.class,
                     path + dataset, true);
         }
 

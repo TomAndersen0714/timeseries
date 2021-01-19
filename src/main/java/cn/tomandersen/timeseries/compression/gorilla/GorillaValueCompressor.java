@@ -119,8 +119,14 @@ public class GorillaValueCompressor extends MetricValueCompressor {
 
         int significantBits = 64 - leadingZeros - trailingZeros;
 
-        // Different from original, 5 -> 6 bits to store the number of leading zeros,
-        // avoids the special situation when high precision xor value appears.
+        /*
+         Different from original implementation, 5 -> 6 bits to store the number of leading zeros,
+         avoids the special situation when high precision xor value appears.
+         In original implementation,when the leading zeros of xor residual is more than 32,
+         you need to store the excess part in the meaningful bits, which cost more bits.
+         Actually you need calculate the distribution of the leading zeros of the xor residual first,
+         and then decide whether it needs 5 bits or 6 bits to save the leading zeros.
+        */
         output.writeBits(leadingZeros, 6); // Write the number of leading zeros input the next 6 bits
         // Since 'significantBits == 0' is unoccupied, we can just store 'significantBits - 1' to
         // cover a larger range and avoid the situation when 'significantBits == 64'.

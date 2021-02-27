@@ -56,6 +56,11 @@ public class BitPackValueDecompressor extends MetricValueDecompressor {
             maxLeastSignificantBits = (int) input.nextLong(6);
             pos = 0;
         }
+        // Handle the situation when 'maxLeastSignificantBits' equals to 63
+        // Since we combine the situation when 'maxLeastSignificantBits' equals to 63 or 64, so
+        // we need to handle it as same situation.
+        if (maxLeastSignificantBits == 63) maxLeastSignificantBits++;
+
         // Decompress the difference in current frame according to the value of maxLeastSignificantBits
         long diff = decodeZigZag64(input.nextLong(maxLeastSignificantBits));
         // Restore the value.

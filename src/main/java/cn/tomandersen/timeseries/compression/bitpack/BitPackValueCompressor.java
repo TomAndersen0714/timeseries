@@ -57,8 +57,17 @@ public class BitPackValueCompressor extends MetricValueCompressor {
      * Write the frame into buffer and flush it.
      */
     private void flush() {
-        // Write the minimum leading zero into buffer as the header of current frame.
-        output.writeBits(maxLeastSignificantBits, 6);
+        // Since the range of value in 6 bits is [0~63], we need to combine the situation when
+        // 'maxLeastSignificantBits' equals to 63 or 64
+        if (maxLeastSignificantBits == 63) maxLeastSignificantBits++;
+        if (maxLeastSignificantBits == 64) {
+            // Write the minimum leading zero into buffer as the header of current frame.
+            output.writeBits(maxLeastSignificantBits - 1, 6);
+        }
+        else
+            // Write the minimum leading zero into buffer as the header of current frame.
+            output.writeBits(maxLeastSignificantBits, 6);
+
 
         // Write the significant bits of every value in current frame into buffer.
         for (int i = 0; i < pos; i++) {

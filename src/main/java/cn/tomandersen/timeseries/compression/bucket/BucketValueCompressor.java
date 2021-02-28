@@ -15,8 +15,8 @@ import cn.tomandersen.timeseries.compression.predictor.Predictor;
  */
 public class BucketValueCompressor extends MetricValueCompressor {
 
-    private int prevLeadingZeros = Integer.MAX_VALUE;
-    private int prevTrailingZeros = Integer.MAX_VALUE;
+    private int prevLeadingZeros = Long.SIZE;
+    private int prevTrailingZeros = Long.SIZE;
 
     private static final int MASK_OFFSET_4 = 0b10 << 4;
     private static final int MASK_OFFSET_6 = 0b11 << 6;
@@ -38,12 +38,13 @@ public class BucketValueCompressor extends MetricValueCompressor {
     @Override
     public void addValue(long value) {
         // Calculate the XOR difference between prediction and current value to be compressed.
-        long diff = predictor.predict() ^ value;
+        long xor = predictor.predict() ^ value;
         predictor.update(value);
 //        long diff = predict(value) ^ value;
 
-        if (diff == 0) {
-            // Write '0' bit as entire control bit(i.e. prediction and current value is same).
+        if (xor == 0) {// case A:
+            // Write '11' bit as entire control bit(i.e. prediction and current value is same).
+            // According the the distribution of values(i.e. entropy code).
 //            output.writeZeroBit();
             output.writeBits(0b11, 2);
 
@@ -53,8 +54,8 @@ public class BucketValueCompressor extends MetricValueCompressor {
 //            APECompressionDemo.d0++;
         }
         else {
-            int leadingZeros = Long.numberOfLeadingZeros(diff);
-            int trailingZeros = Long.numberOfTrailingZeros(diff);
+            int leadingZeros = Long.numberOfLeadingZeros(xor);
+            int trailingZeros = Long.numberOfTrailingZeros(xor);
 
 //            if (leadingZeros > 0 && leadingZeros < 16) APECompressionDemo.c0++;
 //            else if (leadingZeros < 32) APECompressionDemo.c1++;
@@ -72,12 +73,13 @@ public class BucketValueCompressor extends MetricValueCompressor {
             // i.e. there are at least as many leading zeros and as many trailing zeros as with
             // the previous value.
             if (leadingZeros >= prevLeadingZeros && trailingZeros >= prevTrailingZeros) {
-                writeInPrevScope(diff);
+                // case B:
+                writeInPrevScope(xor);
 
                 APECompressionDemo.b1++;
             }
-            else {
-                writeInNewScope(diff, leadingZeros, trailingZeros);
+            else {// case C:
+                writeInNewScope(xor, leadingZeros, trailingZeros);
 
                 APECompressionDemo.b2++;
             }
@@ -110,8 +112,9 @@ public class BucketValueCompressor extends MetricValueCompressor {
         int significantBits = 64 - prevLeadingZeros - prevTrailingZeros;
         xor >>>= prevTrailingZeros;
 //        output.writeBits(xor, significantBits);
-        // Since the first bit of significant bits must be '1', we can utilize it to store less bits.
-        output.writeBits(xor, significantBits - 1);
+        /*// Since the first bit of significant bits must be '1', we can utilize it to store less bits.
+        output.writeBits(xor, significantBits - 1);*/
+        output.writeBits(xor, significantBits);
     }
 
     /**
@@ -131,7 +134,8 @@ public class BucketValueCompressor extends MetricValueCompressor {
 //        output.writeOneBit();
         // Write '0' bit as second control bit.
 //        output.writeZeroBit();
-        output.writeBits(0b1, 1);
+//        output.writeBits(0b1, 1);
+        output.writeBits(0b0, 1);
         //******************
 
         //******************
@@ -155,6 +159,8 @@ public class BucketValueCompressor extends MetricValueCompressor {
 
 
         int significantBits = 64 - leadingZeros - trailingZeros;
+        // In this case xor value don't equal to zero, so 'significantBits' will not be '0'
+        // which we can leverage to reduce 'significantBits' by 1 to cover scope [1,64]
         //******************
         int diffLeadingZeros = encodeZigZag32(leadingZeros - prevLeadingZeros);
         int diffSignificantBits = encodeZigZag32(leadingZeros + trailingZeros - prevLeadingZeros - prevTrailingZeros);
@@ -162,18 +168,22 @@ public class BucketValueCompressor extends MetricValueCompressor {
         switch (leastSignificantBits) {
             case 0:
             case 1:
-            case 2:
+            case 2:// '0' as entire control bit meaning the number of least significant bits of 
+                // encoded 'diffLeadingZeros' equals 2
                 output.writeZeroBit();
+                // write the least significant bits of encoded 'diffLeadingZeros'
                 output.writeBits(diffLeadingZeros, 2);
                 APECompressionDemo.c0++;
                 break;
             case 3:
-            case 4:
+            case 4:// '10' as entire control bit meaning the number of least significant bits of 
+                // encoded 'diffLeadingZeros' equals 4
                 output.writeBits(0b10, 2);
+                // write the least significant bits of encoded 'diffLeadingZeros'
                 output.writeBits(diffLeadingZeros, 4);
                 APECompressionDemo.c1++;
                 break;
-            default:
+            default:// '11' as entire control bit meaning just write the number of leading zeros in 6 bits
                 output.writeBits(0b11, 2);
                 output.writeBits(leadingZeros, 6);
                 APECompressionDemo.c2++;
@@ -183,20 +193,24 @@ public class BucketValueCompressor extends MetricValueCompressor {
         switch (leastSignificantBits) {
             case 0:
             case 1:
-            case 2:
+            case 2:// '0' as entire control bit meaning the number of least significant bits of 
+                // encoded 'diffSignificantBits' equals 2
                 output.writeZeroBit();
                 output.writeBits(diffSignificantBits, 2);
                 APECompressionDemo.d0++;
                 break;
             case 3:
-            case 4:
+            case 4:// '10' as entire control bit meaning the number of least significant bits of 
+                // encoded 'diffSignificantBits' equals 4
                 output.writeBits(0b10, 2);
                 output.writeBits(diffSignificantBits, 4);
                 APECompressionDemo.d1++;
                 break;
-            default:
+            default:// '11' as entire control bit meaning just write the number of significant bits in 6 bits
                 output.writeBits(0b11, 2);
-                output.writeBits(significantBits, 6);
+                // In this case xor value don't equal to zero, so 'significantBits' will not be '0'
+                // which we can leverage to reduce 'significantBits' by 1 to cover scope [1,64]
+                output.writeBits(significantBits - 1, 6);
                 APECompressionDemo.d2++;
                 break;
         }

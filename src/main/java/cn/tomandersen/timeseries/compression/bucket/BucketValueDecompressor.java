@@ -85,7 +85,9 @@ public class BucketValueDecompressor extends MetricValueDecompressor {
                         break;
                     case 0b11:// '11' as entire control bit meaning just write the number of significant bits
                         // in 6 bits
-                        significantBits = input.nextInt(6);
+                        // Since we write 'significantBits-1' to cover scope [1,64], we restore
+                        // 'significantBits' here
+                        significantBits = input.nextInt(6) + 1;
                         trailingZeros = Long.SIZE - leadingZeros - significantBits;
                         break;
                     default:

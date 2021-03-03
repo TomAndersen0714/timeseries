@@ -133,7 +133,7 @@ public class BitBufferReader extends BitBuffer implements BitReader {
             else {
                 // Shift to correct position and take only least significant bits
                 byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
-                value = (value << bits) & leastSignificantBits;
+                value = (value << bits) | leastSignificantBits;
                 leftBits -= bits;
                 bits = 0;
             }
@@ -175,6 +175,7 @@ public class BitBufferReader extends BitBuffer implements BitReader {
                 // Shift to correct position and take only least significant bits
                 byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
                 value = (value << bits) + (leastSignificantBits & 0xFF);
+//                value = (value << bits) | leastSignificantBits;
                 leftBits -= bits;
                 bits = 0;
             }
@@ -215,7 +216,8 @@ public class BitBufferReader extends BitBuffer implements BitReader {
             else {
                 // Shift to correct position and take only least significant bits
                 byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
-                value = (value << bits) & leastSignificantBits;
+                value = (value << bits) | leastSignificantBits;
+//                value = (value << bits) & leastSignificantBits;
                 leftBits -= bits;
                 bits = 0;
             }
@@ -256,7 +258,8 @@ public class BitBufferReader extends BitBuffer implements BitReader {
             else {
                 // Shift to correct position and take only least significant bits
                 byte leastSignificantBits = (byte) ((cacheByte >>> (leftBits - bits)) & ((1 << bits) - 1));
-                value = (value << bits) & leastSignificantBits;
+                value = (value << bits) | leastSignificantBits;
+//                value = (value << bits) & leastSignificantBits;
                 leftBits -= bits;
                 bits = 0;
             }

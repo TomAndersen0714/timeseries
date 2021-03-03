@@ -62,7 +62,8 @@ public class BitBufferWriter extends BitBuffer implements BitWriter {
             }
             else {
                 shift = leftBits - bits;
-                cacheByte |= (byte) (value << shift);
+//                cacheByte |= (byte) (value << shift);
+                cacheByte |= (byte) ((value << shift) & ((1 << leftBits) - 1));
                 leftBits -= bits;
                 bits = 0;
             }

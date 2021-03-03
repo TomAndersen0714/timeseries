@@ -1,4 +1,4 @@
-package cn.tomandersen.timeseries.compression.APE;
+package cn.tomandersen.timeseries.compression.RLE;
 
 import cn.tomandersen.timeseries.compression.BitReader;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;

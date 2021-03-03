@@ -1,5 +1,6 @@
-package cn.tomandersen.timeseries.compression.APE;
+package cn.tomandersen.timeseries.compression.RLE;
 
+import cn.tomandersen.timeseries.compression.APE.APETimestampCompressor;
 import cn.tomandersen.timeseries.compression.benchmark.APECompressionDemo;
 import cn.tomandersen.timeseries.compression.BitWriter;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;

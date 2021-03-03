@@ -40,7 +40,17 @@ public class BitPackValueCompressor extends MetricValueCompressor {
     @Override
     public void addValue(long value) {
         // If current frame is full, then flush it.
-        if (pos >= frame.length) flush();
+        if (pos == frame.length) {
+            // If all values in the frame equals zero(i.e. 'maxLeastSignificantBits' equals 0)
+            // we just store the 0b0 in next 6 bits and clear frame
+            if (maxLeastSignificantBits == 0) {
+                // If all values in the frame equals zero(i.e. 'maxLeastSignificantBits' equals 0)
+                // we just store the 0b0 in next 6 bits and clear frame
+                output.writeBits(0b0, 6);
+                pos = 0;
+            }
+            else flush();
+        }
 
         // Calculate the difference between current value and previous value.
         long diff = encodeZigZag64(value - predictor.predict());
@@ -57,25 +67,27 @@ public class BitPackValueCompressor extends MetricValueCompressor {
      * Write the frame into buffer and flush it.
      */
     private void flush() {
-        // Since the range of value in 6 bits is [0~63], we need to combine the situation when
-        // 'maxLeastSignificantBits' equals to 63 or 64
-        if (maxLeastSignificantBits == 63) maxLeastSignificantBits++;
-        if (maxLeastSignificantBits == 64) {
-            // Write the minimum leading zero into buffer as the header of current frame.
-            output.writeBits(maxLeastSignificantBits - 1, 6);
+        if (pos != 0) {
+            // If all values in the frame equals zero(i.e. 'maxLeastSignificantBits' equals 0)
+            // we just store the 0b0 in next 6 bits
+            if (maxLeastSignificantBits == 0) {
+                output.writeBits(0b0, 6);
+            }
+            else {
+                // Since 'maxLeastSignificantBits' could not equals to '0',
+                // we leverage this point to cover range [1~64] by storing
+                // 'maxLeastSignificantBits-1'
+                // Write the minimum leading zero into buffer as the header of current frame.
+                output.writeBits(maxLeastSignificantBits - 1, 6);
+                // Write the significant bits of every value in current frame into buffer.
+                for (int i = 0; i < pos; i++) {
+                    output.writeBits(frame[i], maxLeastSignificantBits);
+                }
+            }
+            // Reset the pos and the maximum number of least significant bit in the frame.
+            pos = 0;
+            maxLeastSignificantBits = 0;
         }
-        else
-            // Write the minimum leading zero into buffer as the header of current frame.
-            output.writeBits(maxLeastSignificantBits, 6);
-
-
-        // Write the significant bits of every value in current frame into buffer.
-        for (int i = 0; i < pos; i++) {
-            output.writeBits(frame[i], maxLeastSignificantBits);
-        }
-        // Reset the pos and the maximum number of least significant bit in the frame.
-        pos = 0;
-        maxLeastSignificantBits = 0;
     }
 
     /**

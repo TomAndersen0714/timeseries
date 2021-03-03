@@ -50,21 +50,28 @@ public class BitPackValueDecompressor extends MetricValueDecompressor {
      */
     @Override
     public long nextValue() {
+        long diff = 0, value = 0;
         // If current compressed frame reach the end, read next maximum number of least
         // significant bit.
         if (pos == capacity) {
             maxLeastSignificantBits = (int) input.nextLong(6);
             pos = 0;
         }
-        // Handle the situation when 'maxLeastSignificantBits' equals to 63
-        // Since we combine the situation when 'maxLeastSignificantBits' equals to 63 or 64, so
-        // we need to handle it as same situation.
-        if (maxLeastSignificantBits == 63) maxLeastSignificantBits++;
+        // If maxLeastSignificantBits equals zero, the all diff value in
+        // current frame is zero.(i.e. current value and previous is same)
+        if (maxLeastSignificantBits == 0) {
+            // Restore the value.
+            value = diff + predictor.predict();
+        }
+        else {
+            // Decompress the difference in current frame according to the value of maxLeastSignificantBits
+            // Since we compressed 'maxLeastSignificantBits-1' into buffer,
+            // we restore it here
+            diff = decodeZigZag64(input.nextLong(maxLeastSignificantBits + 1));
+            // Restore the value.
+            value = diff + predictor.predict();
 
-        // Decompress the difference in current frame according to the value of maxLeastSignificantBits
-        long diff = decodeZigZag64(input.nextLong(maxLeastSignificantBits));
-        // Restore the value.
-        long value = diff + predictor.predict();
+        }
         // update predictor and position.
         predictor.update(value);
         pos++;

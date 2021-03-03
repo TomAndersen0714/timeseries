@@ -1,10 +1,15 @@
 package cn.tomandersen.timeseries.compression.benchmark;
 
-import cn.tomandersen.timeseries.compression.bucket.BucketValueCompressor;
-import cn.tomandersen.timeseries.compression.APE.RLETimestampCompressor;
+import cn.tomandersen.timeseries.compression.RLE.RLETimestampDecompressor;
+import cn.tomandersen.timeseries.compression.BitBufferReader;
+import cn.tomandersen.timeseries.compression.bitpack.BitPackValueCompressor;
+import cn.tomandersen.timeseries.compression.bitpack.BitPackValueDecompressor;
+import cn.tomandersen.timeseries.compression.RLE.RLETimestampCompressor;
 import cn.tomandersen.timeseries.compression.DatasetReader;
 import cn.tomandersen.timeseries.compression.MetricValueCompressor;
 import cn.tomandersen.timeseries.compression.TimestampCompressor;
+import cn.tomandersen.timeseries.compression.bucket.BucketValueCompressor;
+import cn.tomandersen.timeseries.compression.bucket.BucketValueDecompressor;
 import cn.tomandersen.timeseries.compression.universal.UniversalTSCompressor;
 import cn.tomandersen.timeseries.compression.universal.UniversalTSDecompressor;
 
@@ -65,7 +70,7 @@ public class UniversalCompressionDemo extends CompressionDemo {
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
-//        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
+        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
 
         // Decompress
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
@@ -74,17 +79,17 @@ public class UniversalCompressionDemo extends CompressionDemo {
         compressedTimestampByteBuffer.rewind();
         compressedValueByteBuffer.rewind();
 
-        /*ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
+        ByteBuffer decompressedTimestampsBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
         ByteBuffer decompressedValuesBuffer = ByteBuffer.allocate(uncompressedValueBuffer.capacity());
         UniversalTSDecompressor tsDecompressor = new UniversalTSDecompressor(
                 new RLETimestampDecompressor(new BitBufferReader(compressedTimestampByteBuffer)),
+//                new BitPackValueDecompressor(new BitBufferReader(compressedValueByteBuffer)),
                 new BitPackValueDecompressor(new BitBufferReader(compressedValueByteBuffer)),
                 decompressedTimestampsBuffer, decompressedValuesBuffer
         );
         tsDecompressor.decompress();
         // Print decompressed data
-        printDecompressedData(decompressedTimestampsBuffer, decompressedValuesBuffer, true);*/
-
+        printDecompressedData(decompressedTimestampsBuffer, decompressedValuesBuffer, isLongOrDoubleValue);
         // Print result.
         printResult(
                 uncompressedTimestampBuffer,
@@ -103,12 +108,13 @@ public class UniversalCompressionDemo extends CompressionDemo {
 //        String dataset = "UCR\\UWaveGestureLibraryAll";
 
         compressionDemo(
-                RLETimestampCompressor.class, BucketValueCompressor.class,
-                path + dataset, true);
-
-        compressionDemo(
-                RLETimestampCompressor.class, BucketValueCompressor.class,
+//                RLETimestampCompressor.class, BitPackValueCompressor.class,
+                RLETimestampCompressor.class, BitPackValueCompressor.class,
                 path + dataset, false);
+
+//        compressionDemo(
+//                RLETimestampCompressor.class, BucketValueCompressor.class,
+//                path + dataset, false);
 
 /*        String[] integerValueDatasets = new String[]{
                 "tmp\\Server35", "tmp\\Server43", "tmp\\Server47", "tmp\\Server48",

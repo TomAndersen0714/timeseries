@@ -24,6 +24,15 @@ public abstract class CompressionDemo {
         System.out.println();
     }
 
+    public static void printCompressedData(ByteBuffer byteBuffer) {
+        byteBuffer.rewind();
+        while (byteBuffer.hasRemaining()) {
+//            System.out.print(Integer.toHexString(byteBuffer.get()));
+            System.out.printf("%02X ", byteBuffer.get()); // fill zeros into the header until the length of hex-string is 2
+        }
+        System.out.println();
+    }
+
     protected static void printDecompressedData(
             ByteBuffer decompressedTimestampsBuffer, ByteBuffer decompressedValuesBuffer,
             boolean isLongOrDoubleValue

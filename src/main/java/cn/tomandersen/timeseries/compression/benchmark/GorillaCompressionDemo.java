@@ -15,6 +15,8 @@ import java.time.Instant;
  * @author TomAndersen
  * @version 1.0
  * @date 2020/12/2
+ * @see GorillaTimestampCompressor
+ * @see GorillaValueCompressor
  */
 public class GorillaCompressionDemo extends CompressionDemo {
     // Set for statistic
@@ -28,8 +30,12 @@ public class GorillaCompressionDemo extends CompressionDemo {
         // Read file and get buffer.
 //        String filePath = "C:\\Users\\DELL\\Desktop\\testDataset";
 //        String filePath = "C:\\Users\\DELL\\Desktop\\TSDataset\\with timestamps\\with abnormal timestamp\\ATimeSeriesDataset-master\\IoT\\IoT2";
-        DatasetReader.readAndDivideDouble(filename); // Parse metric value as double type.
-//        reader.readAndDivideLong(); // Parse metric value as long type.
+        if (!isLongOrDoubleValue) {
+            DatasetReader.readAndDivideDouble(filename); // Parse metric value as double type.
+        }
+        else {
+            DatasetReader.readAndDivideLong(filename); // Parse metric value as long type.
+        }
 
         ByteBuffer uncompressedTimestampBuffer = DatasetReader.getTimestampBuffer();
         ByteBuffer uncompressedValueBuffer = DatasetReader.getValueBuffer();
@@ -53,7 +59,6 @@ public class GorillaCompressionDemo extends CompressionDemo {
         clock = Instant.now().toEpochMilli() - clock;
 
 
-
         // Print compressed data
 
         ByteBuffer compressedTimestampByteBuffer = compressedTimestampOutput.getBuffer();
@@ -61,6 +66,10 @@ public class GorillaCompressionDemo extends CompressionDemo {
 
         compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
+
+        // Print the compressed data
+        printCompressedData(compressedTimestampByteBuffer);
+        printCompressedData(compressedValueByteBuffer);
 
 //        printCompressedData(compressedTimestampByteBuffer, compressedValueByteBuffer);
         printResult(
@@ -71,7 +80,7 @@ public class GorillaCompressionDemo extends CompressionDemo {
                 clock);
 
         // Decompress
-/*        compressedTimestampByteBuffer.flip();
+        compressedTimestampByteBuffer.flip();
         compressedValueByteBuffer.flip();
 
         ByteBuffer decompressedTimestampsByteBuffer = ByteBuffer.allocate(uncompressedTimestampBuffer.capacity());
@@ -82,10 +91,14 @@ public class GorillaCompressionDemo extends CompressionDemo {
                 decompressedTimestampsByteBuffer,
                 decompressedValuesByteBuffer
         );
-        tsDecompressor.decompress();*/
+        tsDecompressor.decompress();
 
         // Print decompressed data
-//        printDecompressedData(decompressedTimestampsByteBuffer, decompressedValuesByteBuffer,false);
+        printDecompressedData(
+                decompressedTimestampsByteBuffer,
+                decompressedValuesByteBuffer,
+                isLongOrDoubleValue
+        );
 
 
     }
@@ -136,5 +149,8 @@ public class GorillaCompressionDemo extends CompressionDemo {
 //        String dataset = "UCR\\UWaveGestureLibraryAll";
 
         compressionDemo(path + dataset, true);
+//        if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)
+//            System.out.println("This is big-endian storage mode.");
+//        else System.out.println("This is little-endian storage mode.");
     }
 }
